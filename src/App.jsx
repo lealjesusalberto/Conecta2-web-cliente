@@ -122,13 +122,16 @@ export default function App() {
         if (!snapshot.exists()) {
           await set(userRef, {
             nombre: userData.displayName || '',
+            name: userData.displayName || '',
             email: userData.email || '',
             telefono: userData.phone || '',
             pais: userData.pais || '',
             cedula_url: userData.cedulaUrl || '',
             role: 'cliente',
             estado: 'inactivo', // Por defecto inactivo hasta que el admin apruebe
+            estado_usuario: 'inactivo',
             fecha_registro: new Date().toISOString(),
+            created_at: new Date().toISOString(),
             puntos_actuales: 0,
             nivel_cliente: 'Bronce'
           });
