@@ -97,25 +97,17 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister, onGoBack }
 
         {/* Contenedor Naranja Transparente Glassmorphism */}
         <div style={{
-          width: '96px',
-          height: '96px',
           margin: '12px 0 8px 0',
-          borderRadius: '26px',
-          background: 'linear-gradient(135deg, rgba(241, 95, 2, 0.22) 0%, rgba(241, 95, 2, 0.08) 100%)',
-          border: '1.5px solid rgba(241, 95, 2, 0.4)',
-          boxShadow: '0 12px 28px rgba(241, 95, 2, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(10px)',
-          padding: '10px'
+          justifyContent: 'center'
         }}>
           <img
-            src="/assets/c2_launch.png"
+            src="/assets/c2_launch_2.png"
             alt="Conecta2 Logo"
             style={{
-              width: '72px',
-              height: '72px',
+              width: '140px',
+              height: '140px',
               objectFit: 'contain',
               filter: 'drop-shadow(0 4px 10px rgba(241, 95, 2, 0.3))'
             }}

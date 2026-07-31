@@ -40,21 +40,13 @@ export default function WelcomeScreen({ onGoToRegister, onGoToLogin }) {
       {/* Header Logo con Contenedor Naranja Transparente (Glassmorphism Naranja) */}
       <div style={{ textAlign: 'center', marginTop: '20px', zIndex: 10 }}>
         <div style={{
-          width: '120px',
-          height: '120px',
           margin: '0 auto 16px auto',
-          borderRadius: '30px',
-          background: 'linear-gradient(135deg, rgba(241, 95, 2, 0.22) 0%, rgba(241, 95, 2, 0.08) 100%)',
-          border: '1.5px solid rgba(241, 95, 2, 0.4)',
-          boxShadow: '0 12px 32px rgba(241, 95, 2, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(10px)',
-          padding: '12px'
+          justifyContent: 'center'
         }}>
           <img
-            src="/assets/c2_launch.png"
+            src="/assets/c2_launch_2.png"
             alt="Conecta2 Logo"
             style={{
               width: '90px',

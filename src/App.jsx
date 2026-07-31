@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
-import { ref, onValue, get } from 'firebase/database';
+import { ref, onValue, get, set } from 'firebase/database';
 import { auth, database } from './config/firebase';
 
 import WelcomeScreen from './screens/WelcomeScreen';
@@ -111,8 +111,31 @@ export default function App() {
     setCurrentScreen('main_microtrabajos');
   };
 
-  const handleRegisterSuccess = (userData) => {
+  const handleRegisterSuccess = async (userData) => {
     handleMarkWelcomeSeen();
+    
+    try {
+      if (userData.uid && !userData.uid.startsWith('user_')) {
+        const userRef = ref(database, `users/${userData.uid}`);
+        const snapshot = await get(userRef);
+        if (!snapshot.exists()) {
+          await set(userRef, {
+            nombre: userData.displayName || '',
+            email: userData.email || '',
+            telefono: userData.phone || '',
+            pais: userData.pais || '',
+            cedula_url: userData.cedulaUrl || '',
+            role: 'cliente',
+            fecha_registro: new Date().toISOString(),
+            puntos_actuales: 0,
+            nivel_cliente: 'Bronce'
+          });
+        }
+      }
+    } catch (err) {
+      console.error('Error saving user to DB:', err);
+    }
+
     setUser(userData);
     localStorage.setItem('conecta2_user', JSON.stringify(userData));
     setCurrentScreen('main_microtrabajos');

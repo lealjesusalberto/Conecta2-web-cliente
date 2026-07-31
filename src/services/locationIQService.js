@@ -10,7 +10,9 @@ export async function autocompleteAddress(query) {
 
   try {
     const encodedQuery = encodeURIComponent(query.trim());
-    const url = `https://us1.locationiq.com/v1/autocomplete?key=${LOCATIONIQ_API_KEY}&q=${encodedQuery}&format=json&accept-language=es&countrycodes=ve&limit=8&dedupe=1`;
+    // Bounding Box aproximado de Venezuela para asegurar resultados estrictamente locales
+    const VZLA_VIEWBOX = "-73.38,12.19,-59.80,0.64";
+    const url = `https://us1.locationiq.com/v1/autocomplete?key=${LOCATIONIQ_API_KEY}&q=${encodedQuery}&format=json&accept-language=es&countrycodes=ve&viewbox=${VZLA_VIEWBOX}&bounded=1&limit=8&dedupe=1`;
 
     const response = await fetch(url);
     if (!response.ok) {

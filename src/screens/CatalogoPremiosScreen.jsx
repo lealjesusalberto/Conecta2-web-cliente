@@ -286,7 +286,7 @@ export default function CatalogoPremiosScreen({ user, onGoBack }) {
       {tab === 'catalogo' ? (
         <div style={{ padding: '16px 20px', display: 'flex', flexDirection: 'column', gap: '16px' }}>
           {/* Categorías Filter */}
-          <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+          <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap', paddingBottom: '4px' }}>
             {categorias.map((cat) => (
               <button
                 key={cat}
@@ -328,49 +328,45 @@ export default function CatalogoPremiosScreen({ user, onGoBack }) {
                     key={premio.id}
                     className="flutter-card"
                     style={{
-                      padding: '16px',
+                      height: '140px',
                       display: 'flex',
-                      alignItems: 'center',
-                      gap: '14px',
+                      alignItems: 'stretch',
                       background: 'rgba(30, 41, 59, 0.7)',
-                      border: '1px solid rgba(255,255,255,0.08)'
+                      border: '1px solid rgba(255,255,255,0.08)',
+                      overflow: 'hidden'
                     }}
                   >
                     <div style={{
-                      width: '64px',
-                      height: '64px',
-                      borderRadius: '16px',
-                      background: 'rgba(241, 95, 2, 0.12)',
+                      width: '40%',
+                      background: 'transparent',
                       display: 'flex',
-                      alignItems: 'center',
-                      justifyContent: 'center',
                       flexShrink: 0
                     }}>
                       <img
                         src={premio.imagen_url || premio.imagenUrl || '/assets/c2_launch.png'}
                         alt={premio.titulo}
-                        style={{ width: '48px', height: '48px', objectFit: 'contain' }}
+                        style={{ width: '100%', height: '100%', objectFit: 'cover' }}
                       />
                     </div>
 
-                    <div style={{ flex: 1 }}>
+                    <div style={{ width: '60%', padding: '12px 14px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <span style={{ fontSize: '10px', background: 'rgba(56, 189, 248, 0.15)', color: 'var(--accent-blue)', fontWeight: 800, padding: '2px 6px', borderRadius: '6px' }}>
                           {premio.categoria || 'Cliente'}
                         </span>
                       </div>
 
-                      <h3 style={{ fontSize: '15px', fontWeight: 900, color: '#FFF', marginTop: '4px' }}>
+                      <h3 style={{ fontSize: '14px', fontWeight: 900, color: '#FFF', marginTop: '4px', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 2, WebkitBoxOrient: 'vertical' }}>
                         {premio.titulo || premio.nombre}
                       </h3>
 
-                      <p style={{ fontSize: '12px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.3' }}>
+                      <p style={{ fontSize: '11px', color: 'var(--text-muted)', marginTop: '2px', lineHeight: '1.2', overflow: 'hidden', textOverflow: 'ellipsis', display: '-webkit-box', WebkitLineClamp: 3, WebkitBoxOrient: 'vertical' }}>
                         {premio.descripcion}
                       </p>
 
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: '10px' }}>
-                        <span style={{ fontSize: '14px', fontWeight: 900, color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '4px' }}>
-                          <Trophy size={14} color="#FBBF24" /> {reqPuntos} Pts
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginTop: 'auto', paddingTop: '6px' }}>
+                        <span style={{ fontSize: '12px', fontWeight: 900, color: '#FBBF24', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                          <Trophy size={12} color="#FBBF24" /> {reqPuntos} Pts
                         </span>
 
                         <button
@@ -380,10 +376,10 @@ export default function CatalogoPremiosScreen({ user, onGoBack }) {
                             background: tieneSuficiente ? 'var(--primary-gradient)' : '#334155',
                             opacity: tieneSuficiente ? 1 : 0.6,
                             border: 'none',
-                            borderRadius: '12px',
-                            padding: '6px 14px',
+                            borderRadius: '8px',
+                            padding: '4px 10px',
                             color: '#FFF',
-                            fontSize: '12px',
+                            fontSize: '10px',
                             fontWeight: 800,
                             cursor: tieneSuficiente ? 'pointer' : 'not-allowed'
                           }}

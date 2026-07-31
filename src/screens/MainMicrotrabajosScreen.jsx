@@ -5,6 +5,8 @@ import MapView from '../components/MapView';
 import AddressSearch from '../components/AddressSearch';
 import VehicleSelector from '../components/VehicleSelector';
 import ActiveRideModal from '../components/ActiveRideModal';
+import { ref, onValue } from 'firebase/database';
+import { database } from '../config/firebase';
 
 import { 
   getRidePricingConfig, 
@@ -30,12 +32,101 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
   const [activeRideId, setActiveRideId] = useState(null);
   const [activeNodeName, setActiveNodeName] = useState(null);
   const [activePreviewId, setActivePreviewId] = useState(null);
+  const [availableDrivers, setAvailableDrivers] = useState([]);
 
   useEffect(() => {
     getRidePricingConfig().then((config) => {
       setPricingConfig(config);
     });
   }, []);
+
+  // Escuchar a todos los conductores disponibles (auto y moto) simultáneamente
+  useEffect(() => {
+    const nodoRef = ref(database, `conductores_listos_mapa`);
+    
+    const unsubscribe = onValue(nodoRef, (snapshot) => {
+      console.log('--- FIREBASE DATA RECEIVED ---', snapshot.exists());
+      if (!snapshot.exists()) {
+        setAvailableDrivers([]);
+        return;
+      }
+      const data = snapshot.val();
+      console.log('DATA:', data);
+      const driversArray = [];
+      const nowMs = Date.now();
+      const hace2h = nowMs - (4 * 60 * 60 * 1000); // 4 horas máximo (solicitado)
+
+      // data contiene { auto: {...}, moto: {...} }
+      for (const tipoVehiculo in data) {
+        const conductores = data[tipoVehiculo];
+        
+        for (const key in conductores) {
+          const conductor = conductores[key];
+          const lat = parseFloat(conductor.latitude);
+          const lng = parseFloat(conductor.longitude);
+        
+        if (!isNaN(lat) && !isNaN(lng)) {
+          // Filtrar por heartbeat (2 horas máximo de inactividad)
+          let heartbeatMs = null;
+          if (conductor.heartbeat_timestamp) {
+            const hb = conductor.heartbeat_timestamp;
+            if (typeof hb === 'number') {
+              heartbeatMs = hb;
+            } else {
+              const asInt = parseInt(hb, 10);
+              if (!isNaN(asInt) && asInt > 1000000000000) {
+                heartbeatMs = asInt;
+              } else {
+                const parsedDate = new Date(hb).getTime();
+                if (!isNaN(parsedDate)) {
+                   heartbeatMs = parsedDate;
+                }
+              }
+            }
+          }
+          
+          if (heartbeatMs !== null && heartbeatMs < hace2h) {
+             continue; // Ignorar conductor con más de 2 horas sin heartbeat
+          }
+
+          driversArray.push({
+            id: key,
+            type: tipoVehiculo, // 'auto' o 'moto'
+            lat: lat,
+            lng: lng,
+            name: conductor.name || 'Conductor'
+          });
+        } else {
+           console.log('Skipped due to NaN or lat/lng missing', conductor);
+        }
+        }
+      }
+      
+      console.log('Final driversArray:', driversArray);
+      setAvailableDrivers(driversArray);
+    });
+
+    return () => unsubscribe();
+  }, []); // Ya no depende de selectedVehicleType, siempre carga ambos
+
+  // Aplicar filtro de distancia (5km) y límite (60 marcadores)
+  const filteredAvailableDrivers = React.useMemo(() => {
+    if (!origen) return []; // Si no hay ubicación del cliente, no mostrar conductores (igual que Flutter)
+    
+    let filtered = availableDrivers.filter(driver => {
+      const distKm = calculateHaversineDistance(origen.lat, origen.lng, driver.lat, driver.lng);
+      return distKm <= 5.0; // Radio visual de 5km
+    });
+    
+    // Ordenar por cercanía
+    filtered.sort((a, b) => {
+      const distA = calculateHaversineDistance(origen.lat, origen.lng, a.lat, a.lng);
+      const distB = calculateHaversineDistance(origen.lat, origen.lng, b.lat, b.lng);
+      return distA - distB;
+    });
+    
+    return filtered.slice(0, 60);
+  }, [availableDrivers, origen]);
 
   const distanciaKm = (origen && destino)
     ? calculateHaversineDistance(origen.lat, origen.lng, destino.lat, destino.lng)
@@ -138,6 +229,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           origen={origen}
           destino={destino}
           conductorLocation={activeRide?.conductor_lat && activeRide?.conductor_lng ? { lat: activeRide.conductor_lat, lng: activeRide.conductor_lng } : null}
+          availableDrivers={filteredAvailableDrivers}
           conductorType={selectedVehicleType}
           activeSelectionMode={activeSelectionMode}
           onLocationSelected={handleLocationSelectedFromMap}
@@ -154,6 +246,11 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           onOpenInstall={onOpenInstall}
           isPwaInstalled={isPwaInstalled}
         />
+      </div>
+
+      {/* DEBUG DIV: TO REMOVE */}
+      <div style={{ position: 'absolute', top: '80px', left: '10px', zIndex: 9999, background: 'black', color: 'lime', padding: '10px', fontSize: '14px', borderRadius: '8px' }}>
+        DEBUG: Total en BD: {availableDrivers.length} | Visibles: {filteredAvailableDrivers.length}
       </div>
 
       {/* 3. Floating Rewards Button (Solo cuando no hay viaje activo) */}

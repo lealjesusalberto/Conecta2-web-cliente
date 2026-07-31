@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
-import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff } from 'lucide-react';
-import { auth, googleProvider } from '../config/firebase';
+import { Mail, Lock, User, Phone, ArrowLeft, Eye, EyeOff, UploadCloud } from 'lucide-react';
+import { auth, googleProvider, storage } from '../config/firebase';
 import { createUserWithEmailAndPassword, updateProfile, signInWithPopup } from 'firebase/auth';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBack }) {
   const [name, setName] = useState('');
@@ -9,6 +10,8 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
   const [phone, setPhone] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [pais, setPais] = useState('Venezuela (+58)');
+  const [fotoCedula, setFotoCedula] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -19,10 +22,24 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
       return;
     }
 
+    if (!fotoCedula) {
+      setErrorMsg('Por favor sube una foto clara de tu cédula.');
+      return;
+    }
+
     setIsLoading(true);
     setErrorMsg('');
 
     try {
+      let cedulaUrl = '';
+      if (fotoCedula) {
+        const extension = fotoCedula.name.split('.').pop();
+        const fileName = `cedula_cliente_${Date.now()}.${extension}`;
+        const storageRef = ref(storage, `cedulas/${fileName}`);
+        await uploadBytes(storageRef, fotoCedula);
+        cedulaUrl = await getDownloadURL(storageRef);
+      }
+
       const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
       await updateProfile(result.user, {
         displayName: name.trim()
@@ -32,7 +49,9 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         uid: result.user.uid,
         displayName: name.trim(),
         email: email.trim(),
-        phone: phone.trim()
+        phone: phone.trim(),
+        pais: pais,
+        cedulaUrl: cedulaUrl
       });
     } catch (err) {
       console.warn('⚠️ Register Firebase fallback a sesión local:', err);
@@ -40,7 +59,9 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         uid: 'user_' + Date.now(),
         displayName: name.trim(),
         email: email.trim(),
-        phone: phone.trim()
+        phone: phone.trim(),
+        pais: pais,
+        cedulaUrl: ''
       });
     } finally {
       setIsLoading(false);
@@ -101,25 +122,17 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
 
         {/* Contenedor Naranja Transparente Glassmorphism */}
         <div style={{
-          width: '96px',
-          height: '96px',
           margin: '12px 0 8px 0',
-          borderRadius: '26px',
-          background: 'linear-gradient(135deg, rgba(241, 95, 2, 0.22) 0%, rgba(241, 95, 2, 0.08) 100%)',
-          border: '1.5px solid rgba(241, 95, 2, 0.4)',
-          boxShadow: '0 12px 28px rgba(241, 95, 2, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center',
-          backdropFilter: 'blur(10px)',
-          padding: '10px'
+          justifyContent: 'center'
         }}>
           <img
-            src="/assets/c2_launch.png"
+            src="/assets/c2_launch_2.png"
             alt="Conecta2 Logo"
             style={{
-              width: '72px',
-              height: '72px',
+              width: '140px',
+              height: '140px',
               objectFit: 'contain',
               filter: 'drop-shadow(0 4px 10px rgba(241, 95, 2, 0.3))'
             }}
@@ -198,24 +211,6 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
             </div>
           </div>
 
-          {/* Teléfono */}
-          <div>
-            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
-              Número de Teléfono
-            </label>
-            <div style={{ position: 'relative' }}>
-              <input
-                type="tel"
-                className="flutter-input"
-                placeholder="+58 412 1234567"
-                value={phone}
-                onChange={(e) => setPhone(e.target.value)}
-                style={{ paddingLeft: '40px' }}
-              />
-              <Phone size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-            </div>
-          </div>
-
           {/* Contraseña */}
           <div>
             <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
@@ -250,6 +245,71 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
                 {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
+          </div>
+
+          {/* Teléfono */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              Número de Teléfono
+            </label>
+            <div style={{ display: 'flex', gap: '8px' }}>
+              <select
+                className="flutter-input"
+                style={{ width: '130px', paddingLeft: '8px', paddingRight: '8px' }}
+                value={pais}
+                onChange={(e) => setPais(e.target.value)}
+              >
+                <option value="Venezuela (+58)">VE (+58)</option>
+                <option value="Colombia (+57)">CO (+57)</option>
+                <option value="Peru (+51)">PE (+51)</option>
+                <option value="Chile (+56)">CL (+56)</option>
+                <option value="Ecuador (+593)">EC (+593)</option>
+              </select>
+              <div style={{ position: 'relative', flex: 1 }}>
+                <input
+                  type="tel"
+                  className="flutter-input"
+                  placeholder="412 1234567"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  style={{ paddingLeft: '40px' }}
+                />
+                <Phone size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              </div>
+            </div>
+          </div>
+
+          {/* Foto de Cédula */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              Cédula de Identidad (Foto) *
+            </label>
+            <label style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+              border: '2px dashed rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              background: 'rgba(255,255,255,0.03)'
+            }}>
+              <UploadCloud size={24} color={fotoCedula ? '#10B981' : 'var(--text-muted)'} style={{ marginBottom: '8px' }} />
+              <span style={{ fontSize: '12px', color: fotoCedula ? '#10B981' : 'var(--text-muted)', fontWeight: fotoCedula ? 700 : 400, textAlign: 'center' }}>
+                {fotoCedula ? `Seleccionada: ${fotoCedula.name}` : 'Toca para subir tu Cédula'}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFotoCedula(e.target.files[0]);
+                  }
+                }}
+                style={{ display: 'none' }}
+              />
+            </label>
           </div>
 
           <button

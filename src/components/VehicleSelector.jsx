@@ -14,18 +14,32 @@ export default function VehicleSelector({
 }) {
   const tasaBcv = pricingConfig?.tasaBcv || 50.0;
 
-  // Calculo Tarifas
-  const autoUsd = Math.max(
-    (pricingConfig?.precioBaseAuto || 2.5) + (distanciaKm * (pricingConfig?.precioKmAuto || 0.6)),
-    2.50
-  );
+  // Calculo Tarifas según la app Flutter (incrementos de 500mts)
+  const calcularPrecio = (tipo) => {
+    const precioBase = tipo === 'auto' ? (pricingConfig?.precioBaseAuto ?? 2.5) : (pricingConfig?.precioBaseMoto ?? 1.2);
+    const distanciaMinima = tipo === 'auto' ? 1.5 : 1.0;
+    
+    let precioTotal = precioBase;
+
+    if (distanciaKm > distanciaMinima) {
+      const metrosAdicionales = (distanciaKm - distanciaMinima) * 1000;
+      const incrementos = Math.ceil(metrosAdicionales / 500);
+      const precioPorIncremento = tipo === 'auto' 
+        ? (pricingConfig?.precioAutoExpress ?? 0.40) 
+        : (pricingConfig?.precioMotoExpress ?? 0.11);
+      
+      precioTotal += incrementos * precioPorIncremento;
+    }
+
+    return parseFloat(precioTotal.toFixed(2));
+  };
+
+  const autoUsd = calcularPrecio('auto');
   const autoBs = autoUsd * tasaBcv;
 
-  const motoUsd = Math.max(
-    (pricingConfig?.precioBaseMoto || 1.5) + (distanciaKm * (pricingConfig?.precioKmMoto || 0.4)),
-    1.50
-  );
+  const motoUsd = calcularPrecio('moto');
   const motoBs = motoUsd * tasaBcv;
+
 
   const currentUsd = selectedType === 'auto' ? autoUsd : motoUsd;
 

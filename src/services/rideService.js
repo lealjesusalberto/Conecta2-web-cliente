@@ -10,12 +10,15 @@ export async function getRidePricingConfig() {
     const snapshot = await get(configRef);
     if (snapshot.exists()) {
       const data = snapshot.val();
+      const precios500m = data.precios_500m || {};
       return {
-        tasaBcv: Number(data.tasa_bcv || data.bcv_rate || 50.0),
-        precioBaseAuto: Number(data.tarifa_base_auto || 2.5),
-        precioKmAuto: Number(data.tarifa_km_auto || 0.6),
-        precioBaseMoto: Number(data.tarifa_base_moto || 1.5),
-        precioKmMoto: Number(data.tarifa_km_moto || 0.4),
+        tasaBcv: Number(data.tasa_bcv ?? data.bcv_rate ?? 50.0),
+        precioBaseAuto: Number(data.tarifa_base_auto ?? 2.5),
+        precioKmAuto: Number(data.tarifa_km_auto ?? 0.6),
+        precioBaseMoto: Number(data.tarifa_base_moto ?? 1.5),
+        precioKmMoto: Number(data.tarifa_km_moto ?? 0.4),
+        precioMotoExpress: Number(precios500m.moto_express ?? 0.11),
+        precioAutoExpress: Number(precios500m.auto_express ?? 0.40),
       };
     }
   } catch (error) {
@@ -27,6 +30,8 @@ export async function getRidePricingConfig() {
     precioKmAuto: 0.6,
     precioBaseMoto: 1.5,
     precioKmMoto: 0.4,
+    precioMotoExpress: 0.11,
+    precioAutoExpress: 0.40,
   };
 }
 

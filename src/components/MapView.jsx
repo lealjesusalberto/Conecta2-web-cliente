@@ -23,17 +23,17 @@ const destinationIcon = L.icon({
 });
 
 const carDriverIcon = L.icon({
-  iconUrl: '/assets/car-v.png',
-  iconSize: [44, 44],
-  iconAnchor: [22, 22],
-  popupAnchor: [0, -22]
+  iconUrl: '/assets/auto_tipe.png',
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20]
 });
 
 const motoDriverIcon = L.icon({
-  iconUrl: '/assets/moto-v.png',
-  iconSize: [44, 44],
-  iconAnchor: [22, 22],
-  popupAnchor: [0, -22]
+  iconUrl: '/assets/conductor_.png',
+  iconSize: [40, 40],
+  iconAnchor: [20, 20],
+  popupAnchor: [0, -20]
 });
 
 function MapController({ origen, destino, activeSelectionMode, onLocationSelected }) {
@@ -72,6 +72,7 @@ export default function MapView({
   origen, 
   destino, 
   conductorLocation,
+  availableDrivers = [],
   conductorType = 'auto', 
   activeSelectionMode, 
   onLocationSelected 
@@ -166,12 +167,23 @@ export default function MapView({
           </Marker>
         )}
 
-        {/* Conductor Live Marker */}
+        {/* Conductor Live Marker (Viaje Activo) */}
         {conductorLocation && (
           <Marker position={[conductorLocation.lat, conductorLocation.lng]} icon={activeDriverIcon}>
             <Popup>Conductor en camino</Popup>
           </Marker>
         )}
+
+        {/* Conductores Disponibles en la zona */}
+        {!conductorLocation && availableDrivers.map((driver) => (
+          <Marker 
+            key={driver.id} 
+            position={[driver.lat, driver.lng]} 
+            icon={driver.type === 'moto' ? motoDriverIcon : carDriverIcon}
+          >
+            <Popup>Conductor disponible: {driver.name}</Popup>
+          </Marker>
+        ))}
 
         {/* Real Street Polyline with Orange Conecta2 Brand Glow */}
         {routeCoordinates.length > 0 && (
