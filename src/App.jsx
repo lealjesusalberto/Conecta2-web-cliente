@@ -132,6 +132,21 @@ export default function App() {
             puntos_actuales: 0,
             nivel_cliente: 'Bronce'
           });
+
+          // Enviar notificación Push a los Administradores
+          try {
+            fetch("https://us-central1-conecta2-drive.cloudfunctions.net/sendAdminNotification", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                title: "¡Nuevo Registro Web!",
+                body: `El cliente ${userData.displayName || 'Nuevo Usuario'} se ha registrado desde la Web. Por favor verifica su cuenta.`,
+                role: "admin"
+              })
+            }).catch(e => console.warn("Error al notificar admin:", e));
+          } catch(e) {
+            console.warn(e);
+          }
         }
       }
     } catch (err) {
