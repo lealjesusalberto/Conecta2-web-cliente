@@ -37,19 +37,33 @@ export default function WelcomeScreen({ onGoToRegister, onGoToLogin }) {
         pointerEvents: 'none'
       }}></div>
 
-      {/* Header Logo con c2_launch.png Oficial de Flutter */}
+      {/* Header Logo con Contenedor Naranja Transparente (Glassmorphism Naranja) */}
       <div style={{ textAlign: 'center', marginTop: '20px', zIndex: 10 }}>
-        <img
-          src="/assets/c2_launch.png"
-          alt="Conecta2 Logo"
-          style={{
-            width: '120px',
-            height: '120px',
-            objectFit: 'contain',
-            margin: '0 auto 12px auto',
-            filter: 'drop-shadow(0 10px 20px rgba(241, 95, 2, 0.35))'
-          }}
-        />
+        <div style={{
+          width: '120px',
+          height: '120px',
+          margin: '0 auto 16px auto',
+          borderRadius: '30px',
+          background: 'linear-gradient(135deg, rgba(241, 95, 2, 0.22) 0%, rgba(241, 95, 2, 0.08) 100%)',
+          border: '1.5px solid rgba(241, 95, 2, 0.4)',
+          boxShadow: '0 12px 32px rgba(241, 95, 2, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          backdropFilter: 'blur(10px)',
+          padding: '12px'
+        }}>
+          <img
+            src="/assets/c2_launch.png"
+            alt="Conecta2 Logo"
+            style={{
+              width: '90px',
+              height: '90px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 4px 12px rgba(241, 95, 2, 0.3))'
+            }}
+          />
+        </div>
 
         <h1 style={{ fontSize: '32px', fontWeight: 900, letterSpacing: '-0.5px', color: '#FFF' }}>
           ¡Bienvenido!
@@ -99,33 +113,29 @@ export default function WelcomeScreen({ onGoToRegister, onGoToLogin }) {
             </span>
           </div>
 
-          <h2 style={{ fontSize: '22px', fontWeight: 900, marginBottom: '6px' }}>
-            Quiero Viajar
+          <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FFF', marginBottom: '6px' }}>
+            Pedir un Viaje
           </h2>
-          <p style={{ fontSize: '13px', color: 'rgba(255, 255, 255, 0.7)', lineHeight: '1.4' }}>
-            Solicita viajes en carro, moto o envíos de delivery de forma rápida y segura en tu ciudad.
+          <p style={{ fontSize: '13px', color: 'var(--text-muted)', lineHeight: '1.4', marginBottom: '16px' }}>
+            Solicita tu traslado seguro en Auto Express o Moto Express en segundos.
           </p>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-orange-light)', fontWeight: 800, fontSize: '14px', marginTop: '16px' }}>
-            <span>Registrarme como Cliente</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '6px', color: 'var(--primary-orange-light)', fontWeight: 800, fontSize: '14px' }}>
+            <span>Crear cuenta y comenzar</span>
             <ArrowRight size={16} />
           </div>
         </div>
       </div>
 
-      {/* Footer Options: Ya tengo una cuenta */}
-      <div style={{ textAlign: 'center', zIndex: 10, marginBottom: '10px' }}>
-        <p style={{ fontSize: '14px', color: 'rgba(255, 255, 255, 0.7)', fontWeight: 600, marginBottom: '12px' }}>
-          Ya tengo una cuenta
-        </p>
-
+      {/* Footer Options */}
+      <div style={{ zIndex: 10, display: 'flex', flexDirection: 'column', gap: '12px' }}>
         <button
           onClick={onGoToLogin}
-          className="btn-flutter-primary"
-          style={{ background: 'linear-gradient(135deg, #5F3886 0%, #7E4AA8 100%)', boxShadow: '0 8px 20px rgba(95, 56, 134, 0.4)' }}
+          className="btn-flutter-secondary"
+          style={{ width: '100%' }}
         >
           <UserCheck size={18} />
-          <span>Iniciar Sesión</span>
+          <span>Ya tengo una cuenta (Iniciar Sesión)</span>
         </button>
       </div>
     </div>
