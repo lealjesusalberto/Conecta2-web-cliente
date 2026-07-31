@@ -71,7 +71,7 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister, onGoBack }
       flexDirection: 'column',
       justifyContent: 'space-between'
     }}>
-      {/* Header with Back Button & Logo */}
+      {/* Header with Back Button & Logo Oficial c2_launch.png */}
       <div style={{ padding: '20px', display: 'flex', flexDirection: 'column', alignItems: 'center', position: 'relative' }}>
         <button
           onClick={onGoBack}
@@ -88,104 +88,141 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister, onGoBack }
             alignItems: 'center',
             justifyContent: 'center',
             color: '#FFF',
-            cursor: 'pointer'
+            cursor: 'pointer',
+            zIndex: 20
           }}
         >
           <ArrowLeft size={20} />
         </button>
 
+        {/* Contenedor Naranja Transparente Glassmorphism */}
         <div style={{
-          width: '72px',
-          height: '72px',
-          borderRadius: '22px',
-          background: 'var(--primary-gradient)',
+          width: '96px',
+          height: '96px',
+          margin: '12px 0 8px 0',
+          borderRadius: '26px',
+          background: 'linear-gradient(135deg, rgba(241, 95, 2, 0.22) 0%, rgba(241, 95, 2, 0.08) 100%)',
+          border: '1.5px solid rgba(241, 95, 2, 0.4)',
+          boxShadow: '0 12px 28px rgba(241, 95, 2, 0.28), inset 0 1px 1px rgba(255, 255, 255, 0.2)',
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          margin: '12px 0 8px 0',
-          boxShadow: 'var(--shadow-glow)'
+          backdropFilter: 'blur(10px)',
+          padding: '10px'
         }}>
-          <span style={{ fontSize: '32px', fontWeight: 900, color: '#FFF' }}>C2</span>
+          <img
+            src="/assets/c2_launch.png"
+            alt="Conecta2 Logo"
+            style={{
+              width: '72px',
+              height: '72px',
+              objectFit: 'contain',
+              filter: 'drop-shadow(0 4px 10px rgba(241, 95, 2, 0.3))'
+            }}
+          />
         </div>
       </div>
 
-      {/* Dark Slate Bottom Sheet (Flutter Dark Theme) */}
+      {/* Dark Slate Sheet for Login Form */}
       <div className="flutter-sheet animate-sheet-up" style={{
         padding: '28px 24px 24px 24px',
         color: '#FFFFFF',
         display: 'flex',
         flexDirection: 'column',
-        gap: '16px'
+        gap: '16px',
+        overflowY: 'auto'
       }}>
         <div style={{ textAlign: 'center' }}>
           <h2 style={{ fontSize: '22px', fontWeight: 900, color: '#FFFFFF' }}>
-            ¡Bienvenido de nuevo!
+            Iniciar Sesión
           </h2>
           <p style={{ fontSize: '13px', color: 'var(--text-muted)', marginTop: '4px' }}>
-            Ingresa tus datos para acceder a tu cuenta
+            Ingresa tu correo o teléfono registrado
           </p>
         </div>
 
         {errorMsg && (
-          <div style={{ background: 'rgba(239, 68, 68, 0.15)', color: '#EF4444', border: '1px solid #EF4444', padding: '10px', borderRadius: '12px', fontSize: '13px', textAlign: 'center', fontWeight: 600 }}>
+          <div style={{
+            background: 'rgba(239, 68, 68, 0.15)',
+            border: '1px solid #EF4444',
+            borderRadius: '12px',
+            padding: '10px 14px',
+            color: '#F87171',
+            fontSize: '12px',
+            textAlign: 'center'
+          }}>
             {errorMsg}
           </div>
         )}
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
-          {/* Email / Phone Field */}
-          <div style={{ position: 'relative' }}>
-            <Mail size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type="text"
-              className="flutter-input"
-              placeholder="Correo Electrónico o Teléfono"
-              value={identifier}
-              onChange={(e) => setIdentifier(e.target.value)}
-              style={{ paddingLeft: '44px' }}
-              required
-            />
+          {/* Identificador / Email */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              Correo o Teléfono
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type="text"
+                className="flutter-input"
+                placeholder="ejemplo@correo.com o +58412..."
+                value={identifier}
+                onChange={(e) => setIdentifier(e.target.value)}
+                style={{ paddingLeft: '40px' }}
+                required
+              />
+              <Mail size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+            </div>
           </div>
 
-          {/* Password Field */}
-          <div style={{ position: 'relative' }}>
-            <Lock size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
-            <input
-              type={showPassword ? 'text' : 'password'}
-              className="flutter-input"
-              placeholder="Contraseña"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              style={{ paddingLeft: '44px', paddingRight: '44px' }}
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: 'var(--text-muted)', cursor: 'pointer' }}
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
+          {/* Clave */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              Contraseña
+            </label>
+            <div style={{ position: 'relative' }}>
+              <input
+                type={showPassword ? 'text' : 'password'}
+                className="flutter-input"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                style={{ paddingLeft: '40px', paddingRight: '40px' }}
+                required
+              />
+              <Lock size={18} color="var(--text-muted)" style={{ position: 'absolute', left: '14px', top: '50%', transform: 'translateY(-50%)' }} />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{
+                  position: 'absolute',
+                  right: '14px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: 'none',
+                  border: 'none',
+                  color: 'var(--text-muted)',
+                  cursor: 'pointer'
+                }}
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            </div>
           </div>
 
-          {/* Submit Login Button */}
           <button
             type="submit"
             disabled={isLoading}
             className="btn-flutter-primary"
-            style={{
-              background: 'linear-gradient(135deg, #5F3886 0%, #7E4AA8 100%)',
-              boxShadow: '0 8px 20px rgba(95, 56, 134, 0.4)',
-              marginTop: '8px'
-            }}
+            style={{ marginTop: '8px' }}
           >
-            {isLoading ? 'Iniciando Sesión...' : 'Iniciar Sesión'}
+            {isLoading ? 'Iniciando sesión...' : 'Ingresar a Conecta2 ➔'}
           </button>
         </form>
 
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', margin: '4px 0', color: 'var(--text-muted)', fontSize: '12px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', margin: '4px 0' }}>
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
-          <span>O continuar con</span>
+          <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>O continúa con</span>
           <div style={{ flex: 1, height: '1px', background: 'rgba(255,255,255,0.1)' }}></div>
         </div>
 
@@ -194,17 +231,26 @@ export default function LoginScreen({ onLoginSuccess, onGoToRegister, onGoBack }
           onClick={handleGoogleSignIn}
           className="btn-flutter-secondary"
         >
-          <span>Google Sign-In</span>
+          <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" alt="Google" style={{ width: '18px', height: '18px' }} />
+          <span>Continuar con Google</span>
         </button>
 
-        <div style={{ textAlign: 'center', marginTop: '6px', fontSize: '13px', color: 'var(--text-muted)' }}>
-          ¿No tienes una cuenta?{' '}
-          <span
+        <div style={{ textAlign: 'center', marginTop: '10px' }}>
+          <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>¿No tienes una cuenta aún? </span>
+          <button
             onClick={onGoToRegister}
-            style={{ color: 'var(--primary-orange-light)', fontWeight: 800, cursor: 'pointer' }}
+            style={{
+              background: 'none',
+              border: 'none',
+              color: 'var(--primary-orange-light)',
+              fontWeight: 800,
+              fontSize: '13px',
+              cursor: 'pointer',
+              textDecoration: 'underline'
+            }}
           >
-            Regístrate aquí
-          </span>
+            Regístrate
+          </button>
         </div>
       </div>
     </div>
