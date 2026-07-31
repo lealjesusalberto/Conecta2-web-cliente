@@ -10,25 +10,6 @@ export default function Header({ user, pricingConfig, onOpenAuth, onOpenRewards,
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', width: '100%', zIndex: 1000 }}>
-      {/* Mobile Top Status Bar Simulation */}
-      <div style={{
-        background: '#0F172A',
-        padding: '6px 16px',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        fontSize: '11px',
-        fontWeight: 700,
-        color: 'var(--text-muted)'
-      }}>
-        <span>9:41</span>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
-          <Signal size={12} />
-          <Wifi size={12} />
-          <Battery size={13} />
-        </div>
-      </div>
-
       {/* Flutter App Bar Principal */}
       <header className="flutter-sheet" style={{
         borderRadius: 0,
