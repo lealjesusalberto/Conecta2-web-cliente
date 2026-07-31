@@ -127,6 +127,8 @@ export default function App() {
             telefono: userData.phone || '',
             pais: userData.pais || '',
             cedula_url: userData.cedulaUrl || '',
+            foto_perfil: userData.fotoPerfilUrl || '',
+            photoUrl: userData.fotoPerfilUrl || '',
             role: 'cliente',
             estado: 'inactivo', // Por defecto inactivo hasta que el admin apruebe
             estado_usuario: 'inactivo',

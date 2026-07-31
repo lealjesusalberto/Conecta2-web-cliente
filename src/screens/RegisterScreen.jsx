@@ -12,6 +12,7 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
   const [showPassword, setShowPassword] = useState(false);
   const [pais, setPais] = useState('Venezuela (+58)');
   const [fotoCedula, setFotoCedula] = useState(null);
+  const [fotoPerfil, setFotoPerfil] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
@@ -28,6 +29,11 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
       return;
     }
 
+    if (!fotoPerfil) {
+      setErrorMsg('Por favor sube una foto de perfil.');
+      return;
+    }
+
     setIsLoading(true);
     setErrorMsg('');
 
@@ -41,6 +47,15 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         cedulaUrl = await getDownloadURL(storageRef);
       }
 
+      let perfilUrl = '';
+      if (fotoPerfil) {
+        const pExt = fotoPerfil.name.split('.').pop();
+        const pName = `perfil_cliente_${Date.now()}.${pExt}`;
+        const pRef = ref(storage, `perfiles/${pName}`);
+        await uploadBytes(pRef, fotoPerfil);
+        perfilUrl = await getDownloadURL(pRef);
+      }
+
       const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
       await updateProfile(result.user, {
         displayName: name.trim()
@@ -51,8 +66,11 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         displayName: name.trim(),
         email: email.trim(),
         phone: phone.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
         pais: pais,
-        cedulaUrl: cedulaUrl
+        cedulaUrl: cedulaUrl,
+        fotoPerfilUrl: perfilUrl
       };
 
       setIsLoading(false);
@@ -72,7 +90,8 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
           email: email.trim(),
           phone: phone.trim(),
           pais: pais,
-          cedulaUrl: ''
+          cedulaUrl: '',
+          fotoPerfilUrl: ''
         });
       }, 2500);
     }
@@ -360,6 +379,39 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
                 onChange={(e) => {
                   if (e.target.files && e.target.files[0]) {
                     setFotoCedula(e.target.files[0]);
+                  }
+                }}
+                style={{ display: 'none' }}
+              />
+            </label>
+          </div>
+
+          {/* Foto de Perfil */}
+          <div>
+            <label style={{ fontSize: '12px', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '6px', display: 'block' }}>
+              Foto de Perfil *
+            </label>
+            <label style={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+              padding: '16px',
+              border: '2px dashed rgba(255,255,255,0.15)',
+              borderRadius: '12px',
+              cursor: 'pointer',
+              background: 'rgba(255,255,255,0.03)'
+            }}>
+              <User size={24} color={fotoPerfil ? '#10B981' : 'var(--text-muted)'} style={{ marginBottom: '8px' }} />
+              <span style={{ fontSize: '12px', color: fotoPerfil ? '#10B981' : 'var(--text-muted)', fontWeight: fotoPerfil ? 700 : 400, textAlign: 'center' }}>
+                {fotoPerfil ? `Seleccionada: ${fotoPerfil.name}` : 'Toca para subir tu Foto de Perfil'}
+              </span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={(e) => {
+                  if (e.target.files && e.target.files[0]) {
+                    setFotoPerfil(e.target.files[0]);
                   }
                 }}
                 style={{ display: 'none' }}
