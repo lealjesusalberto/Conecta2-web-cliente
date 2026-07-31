@@ -248,11 +248,6 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
         />
       </div>
 
-      {/* DEBUG DIV: TO REMOVE */}
-      <div style={{ position: 'absolute', top: '80px', left: '10px', zIndex: 9999, background: 'black', color: 'lime', padding: '10px', fontSize: '14px', borderRadius: '8px' }}>
-        DEBUG: Total en BD: {availableDrivers.length} | Visibles: {filteredAvailableDrivers.length}
-      </div>
-
       {/* 3. Floating Rewards Button (Solo cuando no hay viaje activo) */}
       {!activeRide && (
         <button
