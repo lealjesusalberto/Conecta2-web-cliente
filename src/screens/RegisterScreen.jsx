@@ -13,6 +13,7 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
   const [pais, setPais] = useState('Venezuela (+58)');
   const [fotoCedula, setFotoCedula] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [isSuccess, setIsSuccess] = useState(false);
   const [errorMsg, setErrorMsg] = useState('');
 
   const handleRegister = async (e) => {
@@ -45,26 +46,35 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         displayName: name.trim()
       });
 
-      onRegisterSuccess({
+      const userData = {
         uid: result.user.uid,
         displayName: name.trim(),
         email: email.trim(),
         phone: phone.trim(),
         pais: pais,
         cedulaUrl: cedulaUrl
-      });
+      };
+
+      setIsLoading(false);
+      setIsSuccess(true);
+      
+      setTimeout(() => {
+        onRegisterSuccess(userData);
+      }, 2500); // Dar 2.5 segundos para que vea el mensaje de éxito
     } catch (err) {
       console.warn('⚠️ Register Firebase fallback a sesión local:', err);
-      onRegisterSuccess({
-        uid: 'user_' + Date.now(),
-        displayName: name.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
-        pais: pais,
-        cedulaUrl: ''
-      });
-    } finally {
       setIsLoading(false);
+      setIsSuccess(true);
+      setTimeout(() => {
+        onRegisterSuccess({
+          uid: 'user_' + Date.now(),
+          displayName: name.trim(),
+          email: email.trim(),
+          phone: phone.trim(),
+          pais: pais,
+          cedulaUrl: ''
+        });
+      }, 2500);
     }
   };
 
@@ -139,6 +149,51 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
           />
         </div>
       </div>
+
+      {/* Loading Overlay */}
+      {isLoading && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: '#0A0E1A',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#FFF'
+        }}>
+          <div style={{ marginBottom: '20px', width: '40px', height: '40px', border: '3px solid rgba(241, 95, 2, 0.2)', borderTopColor: '#F15F02', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
+          <h2 style={{ fontSize: '18px', fontWeight: 800 }}>Creando tu cuenta...</h2>
+          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '13px' }}>Estamos configurando tu perfil</p>
+          <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
+        </div>
+      )}
+
+      {/* Success Overlay */}
+      {isSuccess && (
+        <div className="animate-fade-in" style={{
+          position: 'fixed',
+          inset: 0,
+          background: '#0A0E1A',
+          zIndex: 9999,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          justifyContent: 'center',
+          color: '#FFF',
+          padding: '24px',
+          textAlign: 'center'
+        }}>
+          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
+            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+          </div>
+          <h2 style={{ fontSize: '22px', fontWeight: 900 }}>¡Cuenta creada exitosamente!</h2>
+          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Te estamos redirigiendo...</p>
+        </div>
+      )}
 
       {/* Dark Slate Sheet for Registration */}
       <div className="flutter-sheet animate-sheet-up" style={{

@@ -170,6 +170,13 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       onOpenAuth();
       return;
     }
+    
+    // Validación de seguridad: el usuario debe estar aprobado por el administrador
+    if (user.estado !== 'activo') {
+      alert('Tu cuenta está en proceso de verificación. No podrás solicitar viajes hasta que un administrador valide tus datos y apruebe tu cuenta.');
+      return;
+    }
+
     if (!origen || !destino) {
       alert('Por favor selecciona la ubicación de Origen y Destino');
       return;

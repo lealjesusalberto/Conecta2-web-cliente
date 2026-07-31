@@ -48,7 +48,8 @@ export default function App() {
             puntos: Number(rawPuntos),
             nivel: rawNivel,
             rating: Number(rawRating),
-            role: dbData.role || 'cliente'
+            role: dbData.role || 'cliente',
+            estado: dbData.estado || dbData.estatus || (dbData.is_active ? 'activo' : 'inactivo')
           };
         };
 
@@ -126,6 +127,7 @@ export default function App() {
             pais: userData.pais || '',
             cedula_url: userData.cedulaUrl || '',
             role: 'cliente',
+            estado: 'inactivo', // Por defecto inactivo hasta que el admin apruebe
             fecha_registro: new Date().toISOString(),
             puntos_actuales: 0,
             nivel_cliente: 'Bronce'

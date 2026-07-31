@@ -180,9 +180,7 @@ export default function MapView({
             key={driver.id} 
             position={[driver.lat, driver.lng]} 
             icon={driver.type === 'moto' ? motoDriverIcon : carDriverIcon}
-          >
-            <Popup>Conductor disponible: {driver.name}</Popup>
-          </Marker>
+          />
         ))}
 
         {/* Real Street Polyline with Orange Conecta2 Brand Glow */}
