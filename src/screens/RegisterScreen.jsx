@@ -184,48 +184,115 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         </div>
       </div>
 
-      {/* Loading Overlay */}
+      {/* Loading Overlay (Flutter LoadingDialog Style) */}
       {isLoading && (
         <div style={{
           position: 'fixed',
           inset: 0,
-          background: '#0A0E1A',
+          background: 'rgba(0, 0, 0, 0.5)',
           zIndex: 9999,
           display: 'flex',
-          flexDirection: 'column',
           alignItems: 'center',
-          justifyContent: 'center',
-          color: '#FFF'
+          justifyContent: 'center'
         }}>
-          <div style={{ marginBottom: '20px', width: '40px', height: '40px', border: '3px solid rgba(241, 95, 2, 0.2)', borderTopColor: '#F15F02', borderRadius: '50%', animation: 'spin 1s linear infinite' }}></div>
-          <h2 style={{ fontSize: '18px', fontWeight: 800 }}>Creando tu cuenta...</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '13px' }}>Estamos configurando tu perfil</p>
+          <div style={{
+            background: '#FFFFFF',
+            borderRadius: '4px',
+            padding: '24px',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '20px',
+            boxShadow: '0 11px 15px -7px rgba(0,0,0,0.2), 0 24px 38px 3px rgba(0,0,0,0.14), 0 9px 46px 8px rgba(0,0,0,0.12)',
+            minWidth: '280px',
+            maxWidth: '90%'
+          }}>
+            <div style={{
+              width: '36px',
+              height: '36px',
+              border: '4px solid rgba(241, 95, 2, 0.2)',
+              borderTopColor: '#F15F02',
+              borderRadius: '50%',
+              animation: 'spin 1s linear infinite'
+            }}></div>
+            <span style={{ fontSize: '16px', color: '#000000', fontWeight: 400 }}>
+              Creando cuenta...
+            </span>
+          </div>
           <style>{`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}</style>
         </div>
       )}
 
-      {/* Success Overlay */}
+      {/* Success Overlay (Flutter Registro Exitoso Style) */}
       {isSuccess && (
         <div className="animate-fade-in" style={{
           position: 'fixed',
           inset: 0,
-          background: '#0A0E1A',
+          background: 'linear-gradient(to bottom, #F15F02 0%, #FF8C32 30%, #FFB464 60%, #FFFFFF 100%)',
           zIndex: 9999,
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#FFF',
-          padding: '24px',
+          padding: '20px',
           textAlign: 'center'
         }}>
-          <div style={{ width: '60px', height: '60px', borderRadius: '50%', background: 'rgba(16, 185, 129, 0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: '20px' }}>
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#10B981" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round">
-              <polyline points="20 6 9 17 4 12"></polyline>
+          <div style={{
+            width: '120px',
+            height: '120px',
+            borderRadius: '50%',
+            background: 'linear-gradient(to bottom right, #8BC34A, #7CB342)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            marginBottom: '40px',
+            boxShadow: '0 0 30px 10px rgba(139, 195, 74, 0.4)',
+            animation: 'scale-up 0.5s ease-out'
+          }}>
+            <svg width="70" height="70" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+              <polyline points="22 4 12 14.01 9 11.01"></polyline>
             </svg>
           </div>
-          <h2 style={{ fontSize: '22px', fontWeight: 900 }}>¡Cuenta creada exitosamente!</h2>
-          <p style={{ color: 'var(--text-muted)', marginTop: '8px', fontSize: '14px' }}>Te estamos redirigiendo...</p>
+
+          <h1 style={{
+            fontSize: '32px',
+            fontWeight: 'bold',
+            color: '#FFFFFF',
+            marginBottom: '16px',
+            textShadow: '0 2px 10px rgba(0, 0, 0, 0.2)'
+          }}>
+            ¡Registro Exitoso!
+          </h1>
+
+          <p style={{
+            fontSize: '16px',
+            color: 'rgba(255, 255, 255, 0.9)',
+            lineHeight: 1.5,
+            padding: '0 20px',
+            marginBottom: '40px',
+            maxWidth: '400px'
+          }}>
+            Tu cuenta ha sido creada correctamente. Te estamos redirigiendo...
+          </p>
+
+          <div style={{
+            width: '40px',
+            height: '40px',
+            border: '3px solid rgba(255, 255, 255, 0.3)',
+            borderTopColor: '#FFFFFF',
+            borderRadius: '50%',
+            animation: 'spin 1s linear infinite'
+          }}></div>
+
+          <style>
+            {`
+              @keyframes scale-up {
+                0% { transform: scale(0); opacity: 0; }
+                80% { transform: scale(1.1); opacity: 1; }
+                100% { transform: scale(1); opacity: 1; }
+              }
+            `}
+          </style>
         </div>
       )}
 
