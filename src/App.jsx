@@ -49,7 +49,7 @@ export default function App() {
             nivel: rawNivel,
             rating: Number(rawRating),
             role: dbData.role || 'cliente',
-            estado: dbData.estado || dbData.estatus || (dbData.is_active ? 'activo' : 'inactivo')
+            estado: dbData.estado_usuario || dbData.estado || dbData.estatus || (dbData.is_active ? 'activo' : 'inactivo')
           };
         };
 

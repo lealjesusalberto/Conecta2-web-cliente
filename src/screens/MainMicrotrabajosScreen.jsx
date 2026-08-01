@@ -20,6 +20,7 @@ import {
 
 export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenRewards, onOpenInstall, isPwaInstalled }) {
   const [modalStep, setModalStep] = useState(1);
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
 
   const [origen, setOrigen] = useState(null);
   const [destino, setDestino] = useState(null);
@@ -173,7 +174,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
     
     // Validación de seguridad: el usuario debe estar aprobado por el administrador
     if (user.estado !== 'activo') {
-      alert('Tu cuenta está en proceso de verificación. No podrás solicitar viajes hasta que un administrador valide tus datos y apruebe tu cuenta.');
+      setShowVerificationModal(true);
       return;
     }
 
@@ -378,6 +379,79 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
         user={user}
         onCancelRide={handleCancelRide}
       />
+
+      {/* 6. Modal de Cuenta en Verificación (Flutter Style) */}
+      {showVerificationModal && (
+        <div style={{
+          position: 'fixed',
+          inset: 0,
+          background: 'rgba(0, 0, 0, 0.65)',
+          zIndex: 10000,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          padding: '20px'
+        }}>
+          <div className="animate-fade-in" style={{
+            background: '#1E293B', // Dark card
+            borderRadius: '16px',
+            width: '100%',
+            maxWidth: '340px',
+            padding: '28px 24px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            boxShadow: '0 20px 40px rgba(0,0,0,0.4)',
+            border: '1px solid rgba(255,255,255,0.05)'
+          }}>
+            {/* Ícono animado tipo reloj o espera */}
+            <div style={{
+              width: '64px',
+              height: '64px',
+              borderRadius: '50%',
+              background: 'rgba(241, 95, 2, 0.1)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginBottom: '20px'
+            }}>
+              <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#F15F02" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+            </div>
+            
+            <h3 style={{
+              fontSize: '20px',
+              fontWeight: 800,
+              color: '#FFFFFF',
+              marginBottom: '12px',
+              textAlign: 'center',
+              letterSpacing: '-0.3px'
+            }}>
+              Cuenta en Revisión
+            </h3>
+            
+            <p style={{
+              fontSize: '14px',
+              color: 'var(--text-muted)',
+              textAlign: 'center',
+              lineHeight: 1.5,
+              marginBottom: '24px'
+            }}>
+              Tu perfil está siendo verificado por un administrador. Recibirás una notificación cuando seas aprobado y podrás solicitar viajes.
+            </p>
+
+            <button
+              onClick={() => setShowVerificationModal(false)}
+              className="btn-flutter-primary"
+              style={{ width: '100%', padding: '14px' }}
+            >
+              Entendido
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
