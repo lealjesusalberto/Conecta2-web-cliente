@@ -80,20 +80,19 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         onRegisterSuccess(userData);
       }, 2500); // Dar 2.5 segundos para que vea el mensaje de éxito
     } catch (err) {
-      console.warn('⚠️ Register Firebase fallback a sesión local:', err);
+      console.error('⚠️ Error al registrar en Firebase:', err);
       setIsLoading(false);
-      setIsSuccess(true);
-      setTimeout(() => {
-        onRegisterSuccess({
-          uid: 'user_' + Date.now(),
-          displayName: name.trim(),
-          email: email.trim(),
-          phone: phone.trim(),
-          pais: pais,
-          cedulaUrl: '',
-          fotoPerfilUrl: ''
-        });
-      }, 2500);
+      
+      // Manejo de errores comunes de Firebase
+      if (err.code === 'auth/email-already-in-use') {
+        setErrorMsg('Este correo ya está registrado. Por favor, inicia sesión.');
+      } else if (err.code === 'auth/weak-password') {
+        setErrorMsg('La contraseña es muy débil. Usa al menos 6 caracteres.');
+      } else if (err.code === 'auth/invalid-email') {
+        setErrorMsg('El correo electrónico no es válido.');
+      } else {
+        setErrorMsg('Hubo un error al crear la cuenta. Inténtalo de nuevo.');
+      }
     }
   };
 
