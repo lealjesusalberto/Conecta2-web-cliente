@@ -37,12 +37,23 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
     setIsLoading(true);
     setErrorMsg('');
 
+    let authUser = null;
+
     try {
+      // 1. Crear usuario Auth primero para validar email/password inmediatamente
+      const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
+      authUser = result.user;
+
+      await updateProfile(authUser, {
+        displayName: name.trim()
+      });
+
+      // 2. Subir las fotos usando la ruta uploads_v1 (la única permitida por las Storage Rules del backend)
       let cedulaUrl = '';
       if (fotoCedula) {
         const extension = fotoCedula.name.split('.').pop();
         const fileName = `cedula_cliente_${Date.now()}.${extension}`;
-        const storageRef = ref(storage, `cedulas/${fileName}`);
+        const storageRef = ref(storage, `uploads_v1/${authUser.uid}/${fileName}`);
         await uploadBytes(storageRef, fotoCedula);
         cedulaUrl = await getDownloadURL(storageRef);
       }
@@ -51,21 +62,14 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
       if (fotoPerfil) {
         const pExt = fotoPerfil.name.split('.').pop();
         const pName = `perfil_cliente_${Date.now()}.${pExt}`;
-        const pRef = ref(storage, `perfiles/${pName}`);
+        const pRef = ref(storage, `uploads_v1/${authUser.uid}/${pName}`);
         await uploadBytes(pRef, fotoPerfil);
         perfilUrl = await getDownloadURL(pRef);
       }
 
-      const result = await createUserWithEmailAndPassword(auth, email.trim(), password);
-      await updateProfile(result.user, {
-        displayName: name.trim()
-      });
-
       const userData = {
-        uid: result.user.uid,
+        uid: authUser.uid,
         displayName: name.trim(),
-        email: email.trim(),
-        phone: phone.trim(),
         email: email.trim(),
         phone: phone.trim(),
         pais: pais,
@@ -81,6 +85,16 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
       }, 2500); // Dar 2.5 segundos para que vea el mensaje de éxito
     } catch (err) {
       console.error('⚠️ Error al registrar en Firebase:', err);
+      
+      // Si se creó el usuario en Auth pero falló subir la imagen, hacemos rollback de Auth
+      if (authUser) {
+        try {
+          await authUser.delete();
+        } catch (e) {
+          console.error("Error al hacer rollback del usuario auth:", e);
+        }
+      }
+
       setIsLoading(false);
       
       // Manejo de errores comunes de Firebase
@@ -91,7 +105,7 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
       } else if (err.code === 'auth/invalid-email') {
         setErrorMsg('El correo electrónico no es válido.');
       } else {
-        setErrorMsg('Hubo un error al crear la cuenta. Inténtalo de nuevo.');
+        setErrorMsg('Hubo un error al crear la cuenta. Inténtalo de nuevo. ' + (err.message || ''));
       }
     }
   };
