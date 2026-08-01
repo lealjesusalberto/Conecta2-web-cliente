@@ -74,7 +74,9 @@ export default function RegisterScreen({ onRegisterSuccess, onGoToLogin, onGoBac
         phone: phone.trim(),
         pais: pais,
         cedulaUrl: cedulaUrl,
-        fotoPerfilUrl: perfilUrl
+        fotoPerfilUrl: perfilUrl,
+        photoURL: perfilUrl, // Usado por la UI en Header.jsx
+        photoUrl: perfilUrl
       };
 
       setIsLoading(false);
