@@ -8,11 +8,11 @@ import ActiveRideModal from '../components/ActiveRideModal';
 import { ref, onValue } from 'firebase/database';
 import { database } from '../config/firebase';
 
-import { 
-  getRidePricingConfig, 
-  calculateHaversineDistance, 
-  requestRide, 
-  listenToRideStatus, 
+import {
+  getRidePricingConfig,
+  calculateHaversineDistance,
+  requestRide,
+  listenToRideStatus,
   cancelRide,
   createRidePreview,
   deleteRidePreview,
@@ -35,7 +35,6 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
   const [activeNodeName, setActiveNodeName] = useState(null);
   const [activePreviewId, setActivePreviewId] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
-  const [liveDriverLocation, setLiveDriverLocation] = useState(null);
 
   useEffect(() => {
     getRidePricingConfig().then((config) => {
@@ -51,18 +50,17 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           setActiveRideId(rideInfo.rideId);
           setActiveNodeName(rideInfo.nodeName);
           setSelectedVehicleType(rideInfo.tipo);
-          setModalStep(2);
-          
+
           if (rideInfo.data) {
             setActiveRide(rideInfo.data);
-            
+
             // Restaurar origen y destino buscando todas las posibles variaciones de nombres de variables
             const oLat = Number(rideInfo.data.origen_lat || rideInfo.data.latitudOrigen || rideInfo.data.origenLat || rideInfo.data.origen_latitude || rideInfo.data.latitude || 0);
             const oLng = Number(rideInfo.data.origen_lng || rideInfo.data.longitudOrigen || rideInfo.data.origenLng || rideInfo.data.origen_longitude || rideInfo.data.longitude || 0);
-            
+
             const dLat = Number(rideInfo.data.destino_lat || rideInfo.data.latitudDestino || rideInfo.data.destinoLat || rideInfo.data.destino_latitude || rideInfo.data.latitudeDestino || 0);
             const dLng = Number(rideInfo.data.destino_lng || rideInfo.data.longitudDestino || rideInfo.data.destinoLng || rideInfo.data.destino_longitude || rideInfo.data.longitudeDestino || 0);
-            
+
             if (oLat !== 0 && oLng !== 0) {
               setOrigen({
                 lat: oLat,
@@ -92,54 +90,10 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
     }
   }, [user]);
 
-  // Escuchar la ubicación en vivo del conductor asignado
-  useEffect(() => {
-    if (!activeRide) {
-      setLiveDriverLocation(null);
-      return;
-    }
-    const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
-    if (!cid) return;
-
-    const driverRef = ref(database, `usuarios_activos_microservicios/${cid}`);
-    const userRef = ref(database, `users/${cid}`);
-    
-    let hasLocationFromActivos = false;
-
-    const unsubscribeDriver = onValue(driverRef, (snapshot) => {
-      if (snapshot.exists()) {
-        const data = snapshot.val();
-        if (data.lat && data.lng) {
-          hasLocationFromActivos = true;
-          setLiveDriverLocation({ lat: Number(data.lat), lng: Number(data.lng) });
-        } else if (data.latitude && data.longitude) {
-          hasLocationFromActivos = true;
-          setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
-        }
-      } else {
-        hasLocationFromActivos = false;
-      }
-    });
-
-    const unsubscribeUser = onValue(userRef, (snapshot) => {
-      if (!hasLocationFromActivos && snapshot.exists()) {
-        const data = snapshot.val();
-        if (data.latitude && data.longitude) {
-          setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
-        }
-      }
-    });
-
-    return () => {
-      unsubscribeDriver();
-      unsubscribeUser();
-    };
-  }, [activeRide?.conductor_id, activeRide?.idConductor, activeRide?.id_conductor, activeRide?.conductorId, activeRide?.conductor]);
-
   // Escuchar a todos los conductores disponibles (auto y moto) simultáneamente
   useEffect(() => {
     const nodoRef = ref(database, `conductores_listos_mapa`);
-    
+
     const unsubscribe = onValue(nodoRef, (snapshot) => {
       console.log('--- FIREBASE DATA RECEIVED ---', snapshot.exists());
       if (!snapshot.exists()) {
@@ -155,49 +109,49 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       // data contiene { auto: {...}, moto: {...} }
       for (const tipoVehiculo in data) {
         const conductores = data[tipoVehiculo];
-        
+
         for (const key in conductores) {
           const conductor = conductores[key];
           const lat = parseFloat(conductor.latitude);
           const lng = parseFloat(conductor.longitude);
-        
-        if (!isNaN(lat) && !isNaN(lng)) {
-          // Filtrar por heartbeat (2 horas máximo de inactividad)
-          let heartbeatMs = null;
-          if (conductor.heartbeat_timestamp) {
-            const hb = conductor.heartbeat_timestamp;
-            if (typeof hb === 'number') {
-              heartbeatMs = hb;
-            } else {
-              const asInt = parseInt(hb, 10);
-              if (!isNaN(asInt) && asInt > 1000000000000) {
-                heartbeatMs = asInt;
+
+          if (!isNaN(lat) && !isNaN(lng)) {
+            // Filtrar por heartbeat (2 horas máximo de inactividad)
+            let heartbeatMs = null;
+            if (conductor.heartbeat_timestamp) {
+              const hb = conductor.heartbeat_timestamp;
+              if (typeof hb === 'number') {
+                heartbeatMs = hb;
               } else {
-                const parsedDate = new Date(hb).getTime();
-                if (!isNaN(parsedDate)) {
-                   heartbeatMs = parsedDate;
+                const asInt = parseInt(hb, 10);
+                if (!isNaN(asInt) && asInt > 1000000000000) {
+                  heartbeatMs = asInt;
+                } else {
+                  const parsedDate = new Date(hb).getTime();
+                  if (!isNaN(parsedDate)) {
+                    heartbeatMs = parsedDate;
+                  }
                 }
               }
             }
-          }
-          
-          if (heartbeatMs !== null && heartbeatMs < hace2h) {
-             continue; // Ignorar conductor con más de 2 horas sin heartbeat
-          }
 
-          driversArray.push({
-            id: key,
-            type: tipoVehiculo, // 'auto' o 'moto'
-            lat: lat,
-            lng: lng,
-            name: conductor.name || 'Conductor'
-          });
-        } else {
-           console.log('Skipped due to NaN or lat/lng missing', conductor);
-        }
+            if (heartbeatMs !== null && heartbeatMs < hace2h) {
+              continue; // Ignorar conductor con más de 2 horas sin heartbeat
+            }
+
+            driversArray.push({
+              id: key,
+              type: tipoVehiculo, // 'auto' o 'moto'
+              lat: lat,
+              lng: lng,
+              name: conductor.name || 'Conductor'
+            });
+          } else {
+            console.log('Skipped due to NaN or lat/lng missing', conductor);
+          }
         }
       }
-      
+
       console.log('Final driversArray:', driversArray);
       setAvailableDrivers(driversArray);
     });
@@ -208,19 +162,19 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
   // Aplicar filtro de distancia (5km) y límite (60 marcadores)
   const filteredAvailableDrivers = React.useMemo(() => {
     if (!origen) return []; // Si no hay ubicación del cliente, no mostrar conductores (igual que Flutter)
-    
+
     let filtered = availableDrivers.filter(driver => {
       const distKm = calculateHaversineDistance(origen.lat, origen.lng, driver.lat, driver.lng);
       return distKm <= 5.0; // Radio visual de 5km
     });
-    
+
     // Ordenar por cercanía
     filtered.sort((a, b) => {
       const distA = calculateHaversineDistance(origen.lat, origen.lng, a.lat, a.lng);
       const distB = calculateHaversineDistance(origen.lat, origen.lng, b.lat, b.lng);
       return distA - distB;
     });
-    
+
     return filtered.slice(0, 60);
   }, [availableDrivers, origen]);
 
@@ -266,7 +220,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       onOpenAuth();
       return;
     }
-    
+
     // Validación de seguridad: el usuario debe estar aprobado por el administrador
     if (user.estado !== 'activo') {
       setShowVerificationModal(true);
@@ -297,8 +251,8 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
 
       // Escuchador en vivo multi-nodo
       listenToRideStatus(
-        nodeName, 
-        rideId, 
+        nodeName,
+        rideId,
         (updatedData) => {
           setActiveRide(updatedData);
         },
@@ -334,12 +288,11 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           origen={origen}
           destino={destino}
           conductorLocation={(() => {
-            if (liveDriverLocation) return liveDriverLocation;
             if (!activeRide) return null;
             const lat = Number(activeRide.conductor_lat || activeRide.latitudConductor || activeRide.conductorLat || 0);
             const lng = Number(activeRide.conductor_lng || activeRide.longitudConductor || activeRide.conductorLng || 0);
             if (lat !== 0 && lng !== 0) return { lat, lng };
-            
+
             const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
             if (cid && availableDrivers.length > 0) {
               const d = availableDrivers.find(driver => driver.id === cid);
@@ -396,13 +349,13 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
 
       {/* 4. Bottom Search Sheet (Solo cuando NO hay un viaje activo) */}
       {!activeRide && (
-        <div className="flutter-sheet animate-sheet-up" style={{ 
-          position: 'absolute', 
-          bottom: 0, 
-          left: 0, 
-          right: 0, 
-          zIndex: 1000, 
-          maxHeight: '75vh', 
+        <div className="flutter-sheet animate-sheet-up" style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          zIndex: 1000,
+          maxHeight: '75vh',
           overflowY: 'auto',
           background: '#1E293B',
           borderTopLeftRadius: '28px',
@@ -531,7 +484,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
                 <polyline points="12 6 12 12 16 14"></polyline>
               </svg>
             </div>
-            
+
             <h3 style={{
               fontSize: '20px',
               fontWeight: 800,
@@ -542,7 +495,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
             }}>
               Cuenta en Revisión
             </h3>
-            
+
             <p style={{
               fontSize: '14px',
               color: 'var(--text-muted)',
@@ -564,5 +517,26 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
         </div>
       )}
     </div>
+  );
+}
+color: 'var(--text-muted)',
+  textAlign: 'center',
+    lineHeight: 1.5,
+      marginBottom: '24px'
+            }}>
+  Tu perfil está siendo verificado por un administrador.Recibirás una notificación cuando seas aprobado y podrás solicitar viajes.
+            </p >
+
+  <button
+    onClick={() => setShowVerificationModal(false)}
+    className="btn-flutter-primary"
+    style={{ width: '100%', padding: '14px' }}
+  >
+    Entendido
+  </button>
+          </div >
+        </div >
+      )}
+    </div >
   );
 }

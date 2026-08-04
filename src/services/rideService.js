@@ -55,9 +55,9 @@ export function calculateHaversineDistance(lat1, lon1, lat2, lon2) {
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
     Math.cos(p1Lat * (Math.PI / 180)) *
-      Math.cos(p2Lat * (Math.PI / 180)) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    Math.cos(p2Lat * (Math.PI / 180)) *
+    Math.sin(dLon / 2) *
+    Math.sin(dLon / 2);
 
   const clampedA = Math.min(Math.max(a, 0), 1);
   const c = 2 * Math.atan2(Math.sqrt(clampedA), Math.sqrt(1 - clampedA));
@@ -97,7 +97,7 @@ export async function createRidePreview({
       preview_id: previewId,
       solicitante_id: user.uid,
       id_solicitante: user.uid,
-      
+
       solicitante_nombre: clientName,
       nombre_solicitante: clientName,
       nombre_cliente: clientName,
@@ -231,8 +231,6 @@ export async function requestRide({
     origen_lng: lngOrigen,
     destino_lat: latDestino,
     destino_lng: lngDestino,
-    destinoLatitude: latDestino,
-    destinoLongitude: lngDestino,
 
     precio: precioUsdFormatted,
     precio_usd: precioUsdFormatted,
@@ -280,7 +278,7 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
   }
 
   if (typeof onUpdate !== 'function') {
-    return () => {};
+    return () => { };
   }
 
   const listeners = [];
@@ -317,8 +315,8 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
       foto_conductor: dataObj.foto_conductor || dataObj.conductor_foto || '',
       telefono_conductor: dataObj.telefono_conductor || dataObj.conductor_telefono || '',
       placa_vehiculo: dataObj.placa_vehiculo || dataObj.modelo_vehiculo || 'Auto',
-      conductor_lat: Number(dataObj.conductor_lat || dataObj.latitudConductor || 0),
-      conductor_lng: Number(dataObj.conductor_lng || dataObj.longitudConductor || 0)
+      conductor_lat: Number(dataObj.conductor_lat || dataObj.latitudConductor || dataObj.latitude || 0),
+      conductor_lng: Number(dataObj.conductor_lng || dataObj.longitudConductor || dataObj.longitude || 0)
     };
 
     lastKnownRide = fullObject;
@@ -327,7 +325,7 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
 
   // 1. Escuchar microservicios_disponibles/auto/rideId y microservicios_disponibles/moto/rideId
   const dispAutoRef = ref(database, `microservicios_disponibles/auto/${rideId}`);
-  onValue(dispAutoRef, (snap) => { 
+  onValue(dispAutoRef, (snap) => {
     if (snap.exists()) {
       handleData(snap.val());
     }

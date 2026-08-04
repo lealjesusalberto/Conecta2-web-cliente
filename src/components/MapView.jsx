@@ -68,14 +68,14 @@ function MapController({ origen, destino, activeSelectionMode, onLocationSelecte
   return null;
 }
 
-export default function MapView({ 
-  origen, 
-  destino, 
+export default function MapView({
+  origen,
+  destino,
   conductorLocation,
   availableDrivers = [],
-  conductorType = 'auto', 
-  activeSelectionMode, 
-  onLocationSelected 
+  conductorType = 'auto',
+  activeSelectionMode,
+  onLocationSelected
 }) {
   const defaultCenter = [10.4806, -66.9036];
   const [routeCoordinates, setRouteCoordinates] = useState([]);
@@ -176,11 +176,11 @@ export default function MapView({
           maxZoom={19}
         />
 
-        <MapController 
+        <MapController
           origen={origen}
           destino={destino}
-          activeSelectionMode={activeSelectionMode} 
-          onLocationSelected={onLocationSelected} 
+          activeSelectionMode={activeSelectionMode}
+          onLocationSelected={onLocationSelected}
         />
 
         {/* Punto A (Origen) Marker con Icono de Casa Flutter */}
@@ -210,9 +210,9 @@ export default function MapView({
 
         {/* Conductores Disponibles en la zona */}
         {!conductorLocation && availableDrivers.map((driver) => (
-          <Marker 
-            key={driver.id} 
-            position={[driver.lat, driver.lng]} 
+          <Marker
+            key={driver.id}
+            position={[driver.lat, driver.lng]}
             icon={driver.type === 'moto' ? motoDriverIcon : carDriverIcon}
           />
         ))}
