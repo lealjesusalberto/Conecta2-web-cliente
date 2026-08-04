@@ -35,6 +35,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
   const [activeNodeName, setActiveNodeName] = useState(null);
   const [activePreviewId, setActivePreviewId] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [liveDriverLocation, setLiveDriverLocation] = useState(null);
 
   useEffect(() => {
     getRidePricingConfig().then((config) => {
