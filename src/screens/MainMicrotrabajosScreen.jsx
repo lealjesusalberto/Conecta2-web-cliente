@@ -54,17 +54,27 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           if (rideInfo.data) {
             setActiveRide(rideInfo.data);
             
-            // Restaurar origen y destino para que el mapa muestre los marcadores y líneas
-            setOrigen({
-              lat: rideInfo.data.origen_lat || rideInfo.data.latitudOrigen || rideInfo.data.latitude || 0,
-              lng: rideInfo.data.origen_lng || rideInfo.data.longitudOrigen || rideInfo.data.longitude || 0,
-              address: rideInfo.data.origen_nombre || rideInfo.data.ubicacionActual || 'Origen'
-            });
-            setDestino({
-              lat: rideInfo.data.destino_lat || rideInfo.data.latitudDestino || 0,
-              lng: rideInfo.data.destino_lng || rideInfo.data.longitudDestino || 0,
-              address: rideInfo.data.destino_nombre || rideInfo.data.ubicacionDestino || 'Destino'
-            });
+            // Restaurar origen y destino buscando todas las posibles variaciones de nombres de variables
+            const oLat = Number(rideInfo.data.origen_lat || rideInfo.data.latitudOrigen || rideInfo.data.origenLat || rideInfo.data.origen_latitude || rideInfo.data.latitude || 0);
+            const oLng = Number(rideInfo.data.origen_lng || rideInfo.data.longitudOrigen || rideInfo.data.origenLng || rideInfo.data.origen_longitude || rideInfo.data.longitude || 0);
+            
+            const dLat = Number(rideInfo.data.destino_lat || rideInfo.data.latitudDestino || rideInfo.data.destinoLat || rideInfo.data.destino_latitude || rideInfo.data.latitudeDestino || 0);
+            const dLng = Number(rideInfo.data.destino_lng || rideInfo.data.longitudDestino || rideInfo.data.destinoLng || rideInfo.data.destino_longitude || rideInfo.data.longitudeDestino || 0);
+            
+            if (oLat !== 0 && oLng !== 0) {
+              setOrigen({
+                lat: oLat,
+                lng: oLng,
+                address: rideInfo.data.origen_nombre || rideInfo.data.ubicacionActual || 'Origen'
+              });
+            }
+            if (dLat !== 0 && dLng !== 0) {
+              setDestino({
+                lat: dLat,
+                lng: dLng,
+                address: rideInfo.data.destino_nombre || rideInfo.data.ubicacionDestino || 'Destino'
+              });
+            }
           }
 
           listenToRideStatus(
