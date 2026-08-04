@@ -79,6 +79,7 @@ export default function MapView({
 }) {
   const defaultCenter = [10.4806, -66.9036];
   const [routeCoordinates, setRouteCoordinates] = useState([]);
+  const [driverRouteCoordinates, setDriverRouteCoordinates] = useState([]);
 
   useEffect(() => {
     if (navigator.geolocation && !origen) {
@@ -125,6 +126,39 @@ export default function MapView({
 
     fetchRoadRoute();
   }, [origen?.lat, origen?.lng, destino?.lat, destino?.lng]);
+
+  // Fetch route from driver to client
+  useEffect(() => {
+    if (!conductorLocation || !origen) {
+      setDriverRouteCoordinates([]);
+      return;
+    }
+
+    const fetchDriverRoute = async () => {
+      try {
+        const url = `https://router.project-osrm.org/route/v1/driving/${conductorLocation.lng},${conductorLocation.lat};${origen.lng},${origen.lat}?overview=full&geometries=geojson`;
+        const res = await fetch(url);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.routes && data.routes[0]) {
+            const coords = data.routes[0].geometry.coordinates.map(([lng, lat]) => [lat, lng]);
+            setDriverRouteCoordinates(coords);
+            return;
+          }
+        }
+      } catch (e) {
+        console.warn('⚠️ Fallback a línea directa conductor-cliente:', e);
+      }
+      setDriverRouteCoordinates([
+        [conductorLocation.lat, conductorLocation.lng],
+        [origen.lat, origen.lng]
+      ]);
+    };
+
+    // Agregar un timeout o debounce en un caso real si el conductor se mueve muy rápido, 
+    // pero para no saturar OSRM, podríamos limitarlo. Por ahora está bien.
+    fetchDriverRoute();
+  }, [conductorLocation?.lat, conductorLocation?.lng, origen?.lat, origen?.lng]);
 
   const centerPos = origen ? [origen.lat, origen.lng] : defaultCenter;
   const activeDriverIcon = conductorType === 'moto' ? motoDriverIcon : carDriverIcon;
@@ -184,7 +218,7 @@ export default function MapView({
         ))}
 
         {/* Real Street Polyline with Orange Conecta2 Brand Glow */}
-        {routeCoordinates.length > 0 && (
+        {routeCoordinates.length > 0 && !conductorLocation && (
           <>
             <Polyline
               positions={routeCoordinates}
@@ -196,6 +230,25 @@ export default function MapView({
               color="#F15F02"
               weight={5}
               opacity={1}
+            />
+          </>
+        )}
+
+        {/* Polyline from Driver to Client (Green dashed) */}
+        {driverRouteCoordinates.length > 0 && conductorLocation && (
+          <>
+            <Polyline
+              positions={driverRouteCoordinates}
+              color="rgba(34, 197, 94, 0.3)"
+              weight={10}
+            />
+            <Polyline
+              positions={driverRouteCoordinates}
+              color="#22C55E"
+              weight={5}
+              opacity={1}
+              dashArray="10, 10"
+              dashOffset="0"
             />
           </>
         )}

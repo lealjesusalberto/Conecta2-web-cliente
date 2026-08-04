@@ -15,7 +15,8 @@ import {
   listenToRideStatus, 
   cancelRide,
   createRidePreview,
-  deleteRidePreview
+  deleteRidePreview,
+  checkActiveRideOnMount
 } from '../services/rideService';
 
 export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenRewards, onOpenInstall, isPwaInstalled }) {
@@ -40,6 +41,32 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       setPricingConfig(config);
     });
   }, []);
+
+  // Verificar si hay un viaje activo al cargar la aplicación
+  useEffect(() => {
+    if (user && user.uid) {
+      checkActiveRideOnMount(user.uid).then((rideInfo) => {
+        if (rideInfo) {
+          setActiveRideId(rideInfo.rideId);
+          setActiveNodeName(rideInfo.nodeName);
+          setSelectedVehicleType(rideInfo.tipo);
+          
+          if (rideInfo.data) {
+            setActiveRide(rideInfo.data);
+          }
+
+          listenToRideStatus(
+            rideInfo.nodeName,
+            rideInfo.rideId,
+            (updatedData) => {
+              setActiveRide(updatedData);
+            },
+            user.uid
+          );
+        }
+      });
+    }
+  }, [user]);
 
   // Escuchar a todos los conductores disponibles (auto y moto) simultáneamente
   useEffect(() => {
@@ -237,7 +264,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           origen={origen}
           destino={destino}
           conductorLocation={activeRide?.conductor_lat && activeRide?.conductor_lng ? { lat: activeRide.conductor_lat, lng: activeRide.conductor_lng } : null}
-          availableDrivers={filteredAvailableDrivers}
+          availableDrivers={activeRide ? [] : filteredAvailableDrivers}
           conductorType={selectedVehicleType}
           activeSelectionMode={activeSelectionMode}
           onLocationSelected={handleLocationSelectedFromMap}

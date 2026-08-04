@@ -412,3 +412,82 @@ export async function cancelRide(nodeName, rideId, userId, tipo = 'auto') {
     console.error('Error al cancelar viaje:', error);
   }
 }
+
+/**
+ * Verifica si el usuario tiene un viaje activo o disponible al montar la aplicación
+ */
+export async function checkActiveRideOnMount(userId) {
+  if (!userId) return null;
+  const cleanId = userId.trim();
+  if (!cleanId || /[.#$\[\]]/.test(cleanId)) return null;
+
+  try {
+    let activeRideId = null;
+    let nodeName = null;
+    let tipo = 'auto';
+    let isActivo = false;
+
+    const activosRef = ref(database, `indices/microservicios_por_solicitante/${cleanId}/activos`);
+    const activosSnap = await get(activosRef);
+    if (activosSnap.exists()) {
+      const keys = Object.keys(activosSnap.val());
+      if (keys.length > 0) {
+        activeRideId = keys[0];
+        isActivo = true;
+      }
+    }
+
+    if (!activeRideId) {
+      const dispRef = ref(database, `indices/microservicios_por_solicitante/${cleanId}/disponibles`);
+      const dispSnap = await get(dispRef);
+      if (dispSnap.exists()) {
+        const keys = Object.keys(dispSnap.val());
+        if (keys.length > 0) {
+          activeRideId = keys[0];
+        }
+      }
+    }
+
+    if (!activeRideId) return null;
+
+    let rideData = null;
+    let ridePath = null;
+
+    const checkNode = async (pathStr) => {
+      const r = ref(database, pathStr);
+      const s = await get(r);
+      if (s.exists()) {
+        rideData = s.val();
+        ridePath = pathStr;
+        return true;
+      }
+      return false;
+    };
+
+    if (isActivo) {
+      if (!(await checkNode(`microservicios_activos/auto/${activeRideId}`))) {
+        if (!(await checkNode(`microservicios_activos/moto/${activeRideId}`))) {
+          await checkNode(`microservicios_activos/${activeRideId}`);
+        }
+      }
+    } else {
+      if (!(await checkNode(`microservicios_disponibles/auto/${activeRideId}`))) {
+        await checkNode(`microservicios_disponibles/moto/${activeRideId}`);
+      }
+    }
+
+    if (!rideData) return null;
+
+    if (rideData.transporte && rideData.transporte.toLowerCase().includes('moto')) {
+      tipo = 'moto';
+    } else if (ridePath && ridePath.includes('/moto/')) {
+      tipo = 'moto';
+    }
+
+    nodeName = isActivo ? `microservicios_activos/${tipo}` : `microservicios_disponibles/${tipo}`;
+    return { rideId: activeRideId, nodeName, tipo, data: rideData };
+  } catch (error) {
+    console.error('Error verificando viaje activo en montaje:', error);
+    return null;
+  }
+}

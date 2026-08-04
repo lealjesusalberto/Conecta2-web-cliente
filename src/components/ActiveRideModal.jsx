@@ -18,8 +18,12 @@ export default function ActiveRideModal({ rideData, user, onCancelRide }) {
   const conductorTelefono = rideData.telefono_conductor || rideData.conductor_telefono;
   const conductorPlaca = rideData.placa_vehiculo || rideData.conductor_placa || 'PLACA';
   const conductorModelo = rideData.modelo_vehiculo || rideData.conductor_vehiculo || (rideData.transporte?.includes('moto') ? 'Moto' : 'Auto');
-  const precioUsd = rideData.precio || '0.00';
-  const precioBs = rideData.precio_total || '0.00';
+  
+  const precioUsd = rideData.precio || rideData.precio_usd || '0.00';
+  const precioUsdNum = Number(precioUsd) || 0;
+  const tasaBcvNum = Number(rideData.tasa_bcv) || 50;
+  const fallbackBs = (precioUsdNum * tasaBcvNum).toFixed(2);
+  const precioBs = rideData.precio_total || rideData.precio_bs || fallbackBs;
 
   // Configuración de estado idéntica a Flutter MicroservicioOverlaySuperior
   const getStatusConfig = () => {
