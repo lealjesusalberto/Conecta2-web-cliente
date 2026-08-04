@@ -594,24 +594,4 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
     </div>
   );
 }
-color: 'var(--text-muted)',
-  textAlign: 'center',
-    lineHeight: 1.5,
-      marginBottom: '24px'
-            }}>
-  Tu perfil está siendo verificado por un administrador.Recibirás una notificación cuando seas aprobado y podrás solicitar viajes.
-            </p >
 
-  <button
-    onClick={() => setShowVerificationModal(false)}
-    className="btn-flutter-primary"
-    style={{ width: '100%', padding: '14px' }}
-  >
-    Entendido
-  </button>
-          </div >
-        </div >
-      )}
-    </div >
-  );
-}
