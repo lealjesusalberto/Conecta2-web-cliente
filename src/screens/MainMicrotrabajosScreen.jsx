@@ -53,6 +53,18 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           
           if (rideInfo.data) {
             setActiveRide(rideInfo.data);
+            
+            // Restaurar origen y destino para que el mapa muestre los marcadores y líneas
+            setOrigen({
+              lat: rideInfo.data.origen_lat || rideInfo.data.latitudOrigen || rideInfo.data.latitude || 0,
+              lng: rideInfo.data.origen_lng || rideInfo.data.longitudOrigen || rideInfo.data.longitude || 0,
+              address: rideInfo.data.origen_nombre || rideInfo.data.ubicacionActual || 'Origen'
+            });
+            setDestino({
+              lat: rideInfo.data.destino_lat || rideInfo.data.latitudDestino || 0,
+              lng: rideInfo.data.destino_lng || rideInfo.data.longitudDestino || 0,
+              address: rideInfo.data.destino_nombre || rideInfo.data.ubicacionDestino || 'Destino'
+            });
           }
 
           listenToRideStatus(
