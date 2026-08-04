@@ -234,21 +234,20 @@ export default function MapView({
           </>
         )}
 
-        {/* Polyline from Driver to Client (Green dashed) */}
+        {/* Polyline from Driver to Client (Blue dashed as requested) */}
         {driverRouteCoordinates.length > 0 && conductorLocation && (
           <>
             <Polyline
               positions={driverRouteCoordinates}
-              color="rgba(34, 197, 94, 0.3)"
+              color="rgba(59, 130, 246, 0.3)" // Blue shadow
               weight={10}
             />
             <Polyline
               positions={driverRouteCoordinates}
-              color="#22C55E"
+              color="#3B82F6" // Solid Blue
               weight={5}
               opacity={1}
               dashArray="10, 10"
-              dashOffset="0"
             />
           </>
         )}

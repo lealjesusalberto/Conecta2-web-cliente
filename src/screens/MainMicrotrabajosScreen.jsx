@@ -289,10 +289,20 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           destino={destino}
           conductorLocation={(() => {
             if (!activeRide) return null;
+            // 1. Prioridad: Coordenadas que la app de conductor inyecta directamente en el microservicio activo
+            const activeLat = Number(activeRide.conductorLatitude || activeRide.ubicacionConductor_lat || 0);
+            const activeLng = Number(activeRide.conductorLongitude || activeRide.ubicacionConductor_lng || 0);
+            if (activeLat !== 0 && activeLng !== 0) return { lat: activeLat, lng: activeLng };
+
+            // 2. Coordenadas de los listeners adicionales de la web (usuarios_activos_microservicios o users)
+            if (liveDriverLocation) return liveDriverLocation;
+            
+            // 3. Fallback a campos legacy
             const lat = Number(activeRide.conductor_lat || activeRide.latitudConductor || activeRide.conductorLat || 0);
             const lng = Number(activeRide.conductor_lng || activeRide.longitudConductor || activeRide.conductorLng || 0);
             if (lat !== 0 && lng !== 0) return { lat, lng };
-
+            
+            // 4. Último recurso: listado general de disponibles
             const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
             if (cid && availableDrivers.length > 0) {
               const d = availableDrivers.find(driver => driver.id === cid);
