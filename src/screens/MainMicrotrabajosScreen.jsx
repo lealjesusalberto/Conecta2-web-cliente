@@ -35,6 +35,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
   const [activeNodeName, setActiveNodeName] = useState(null);
   const [activePreviewId, setActivePreviewId] = useState(null);
   const [availableDrivers, setAvailableDrivers] = useState([]);
+  const [liveDriverLocation, setLiveDriverLocation] = useState(null);
 
   useEffect(() => {
     getRidePricingConfig().then((config) => {
@@ -89,6 +90,50 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       });
     }
   }, [user]);
+
+  // Escuchar la ubicación en vivo del conductor asignado
+  useEffect(() => {
+    if (!activeRide) {
+      setLiveDriverLocation(null);
+      return;
+    }
+    const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
+    if (!cid) return;
+
+    const driverRef = ref(database, `usuarios_activos_microservicios/${cid}`);
+    const userRef = ref(database, `users/${cid}`);
+    
+    let hasLocationFromActivos = false;
+
+    const unsubscribeDriver = onValue(driverRef, (snapshot) => {
+      if (snapshot.exists()) {
+        const data = snapshot.val();
+        if (data.lat && data.lng) {
+          hasLocationFromActivos = true;
+          setLiveDriverLocation({ lat: Number(data.lat), lng: Number(data.lng) });
+        } else if (data.latitude && data.longitude) {
+          hasLocationFromActivos = true;
+          setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+        }
+      } else {
+        hasLocationFromActivos = false;
+      }
+    });
+
+    const unsubscribeUser = onValue(userRef, (snapshot) => {
+      if (!hasLocationFromActivos && snapshot.exists()) {
+        const data = snapshot.val();
+        if (data.latitude && data.longitude) {
+          setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+        }
+      }
+    });
+
+    return () => {
+      unsubscribeDriver();
+      unsubscribeUser();
+    };
+  }, [activeRide?.conductor_id, activeRide?.idConductor, activeRide?.id_conductor, activeRide?.conductorId, activeRide?.conductor]);
 
   // Escuchar a todos los conductores disponibles (auto y moto) simultáneamente
   useEffect(() => {
