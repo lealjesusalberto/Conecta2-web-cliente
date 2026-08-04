@@ -337,25 +337,22 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
               console.log('conductorLocation: activeRide is null');
               return null;
             }
-            // 1. Prioridad: Coordenadas que la app de conductor inyecta directamente en el microservicio activo
+            // 1. Prioridad: Coordenadas EN VIVO de los listeners adicionales de la web (usuarios_activos_microservicios o users)
+            if (liveDriverLocation) {
+              return liveDriverLocation;
+            }
+
+            // 2. Fallback 1: Coordenadas que la app de conductor inyecta directamente en el microservicio activo al aceptar
             const activeLat = Number(activeRide.conductorLatitude || activeRide.ubicacionConductor_lat || 0);
             const activeLng = Number(activeRide.conductorLongitude || activeRide.ubicacionConductor_lng || 0);
             if (activeLat !== 0 && activeLng !== 0) {
-              console.log('conductorLocation: using Priority 1 (activeRide)', activeLat, activeLng);
               return { lat: activeLat, lng: activeLng };
-            }
-
-            // 2. Coordenadas de los listeners adicionales de la web (usuarios_activos_microservicios o users)
-            if (liveDriverLocation) {
-              console.log('conductorLocation: using Priority 2 (liveDriverLocation)', liveDriverLocation);
-              return liveDriverLocation;
             }
             
             // 3. Fallback a campos legacy
             const lat = Number(activeRide.conductor_lat || activeRide.latitudConductor || activeRide.conductorLat || 0);
             const lng = Number(activeRide.conductor_lng || activeRide.longitudConductor || activeRide.conductorLng || 0);
             if (lat !== 0 && lng !== 0) {
-              console.log('conductorLocation: using Priority 3 (legacy fields)', lat, lng);
               return { lat, lng };
             }
             
@@ -364,15 +361,9 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
             if (cid && availableDrivers.length > 0) {
               const d = availableDrivers.find(driver => driver.id === cid);
               if (d) {
-                console.log('conductorLocation: using Priority 4 (availableDrivers)', d.lat, d.lng);
                 return { lat: d.lat, lng: d.lng };
               }
             }
-            console.log('conductorLocation: all fallbacks failed, returning null', {
-              cid,
-              availableDriversCount: availableDrivers.length,
-              activeRide
-            });
             return null;
           })()}
           availableDrivers={activeRide ? [] : filteredAvailableDrivers}
