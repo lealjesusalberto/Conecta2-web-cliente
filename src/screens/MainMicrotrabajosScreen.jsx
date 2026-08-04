@@ -102,18 +102,38 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
     if (!cid) return;
 
     const driverRef = ref(database, `usuarios_activos_microservicios/${cid}`);
-    const unsubscribe = onValue(driverRef, (snapshot) => {
+    const userRef = ref(database, `users/${cid}`);
+    
+    let hasLocationFromActivos = false;
+
+    const unsubscribeDriver = onValue(driverRef, (snapshot) => {
       if (snapshot.exists()) {
         const data = snapshot.val();
         if (data.lat && data.lng) {
+          hasLocationFromActivos = true;
           setLiveDriverLocation({ lat: Number(data.lat), lng: Number(data.lng) });
         } else if (data.latitude && data.longitude) {
+          hasLocationFromActivos = true;
+          setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
+        }
+      } else {
+        hasLocationFromActivos = false;
+      }
+    });
+
+    const unsubscribeUser = onValue(userRef, (snapshot) => {
+      if (!hasLocationFromActivos && snapshot.exists()) {
+        const data = snapshot.val();
+        if (data.latitude && data.longitude) {
           setLiveDriverLocation({ lat: Number(data.latitude), lng: Number(data.longitude) });
         }
       }
     });
 
-    return () => unsubscribe();
+    return () => {
+      unsubscribeDriver();
+      unsubscribeUser();
+    };
   }, [activeRide?.conductor_id, activeRide?.idConductor, activeRide?.id_conductor, activeRide?.conductorId, activeRide?.conductor]);
 
   // Escuchar a todos los conductores disponibles (auto y moto) simultáneamente
