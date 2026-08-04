@@ -265,6 +265,8 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
     setActiveRide(null);
     setActiveRideId(null);
     setActiveNodeName(null);
+    setOrigen(null);
+    setDestino(null);
     setModalStep(1);
   };
 
