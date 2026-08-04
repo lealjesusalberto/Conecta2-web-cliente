@@ -340,12 +340,12 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
   });
   listeners.push(dispMotoRef);
 
-  // 2. Escuchar microservicios_activos/auto y microservicios_activos/moto
-  const actAutoRef = ref(database, 'microservicios_activos/auto');
+  // 2. Escuchar microservicios_activos/auto/rideId y microservicios_activos/moto/rideId
+  const actAutoRef = ref(database, `microservicios_activos/auto/${rideId}`);
   onValue(actAutoRef, (snap) => {
     if (snap.exists()) {
       handleData(snap.val());
-    } else if (hasBeenAccepted && lastKnownRide) {
+    } else if (hasBeenAccepted && lastKnownRide && lastKnownRide.tipoServicio?.toLowerCase().includes('auto')) {
       // Si el viaje estuvo activo y el nodo desaparece, la app de Flutter lo marcó como completado
       onUpdate({
         ...lastKnownRide,
@@ -355,11 +355,11 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
   });
   listeners.push(actAutoRef);
 
-  const actMotoRef = ref(database, 'microservicios_activos/moto');
+  const actMotoRef = ref(database, `microservicios_activos/moto/${rideId}`);
   onValue(actMotoRef, (snap) => {
     if (snap.exists()) {
       handleData(snap.val());
-    } else if (hasBeenAccepted && lastKnownRide) {
+    } else if (hasBeenAccepted && lastKnownRide && lastKnownRide.tipoServicio?.toLowerCase().includes('moto')) {
       onUpdate({
         ...lastKnownRide,
         estado_microservicio: 'completado'
