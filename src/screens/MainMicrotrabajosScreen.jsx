@@ -337,16 +337,28 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
               console.log('conductorLocation: activeRide is null');
               return null;
             }
-            // 1. Prioridad: Coordenadas EN VIVO de los listeners adicionales de la web (usuarios_activos_microservicios o users)
-            if (liveDriverLocation) {
-              return liveDriverLocation;
-            }
-
-            // 2. Fallback 1: Coordenadas que la app de conductor inyecta directamente en el microservicio activo al aceptar
+            // 1. Prioridad: Coordenadas que la app de conductor inyecta directamente en el microservicio activo
             const activeLat = Number(activeRide.conductorLatitude || activeRide.ubicacionConductor_lat || 0);
             const activeLng = Number(activeRide.conductorLongitude || activeRide.ubicacionConductor_lng || 0);
             if (activeLat !== 0 && activeLng !== 0) {
               return { lat: activeLat, lng: activeLng };
+            }
+            
+            // 1.5. Prioridad: Coordenadas string (guardadas en el momento exacto de aceptar)
+            if (activeRide.ubicacionConductor && typeof activeRide.ubicacionConductor === 'string') {
+              const parts = activeRide.ubicacionConductor.split(',');
+              if (parts.length === 2) {
+                const lat = Number(parts[0].trim());
+                const lng = Number(parts[1].trim());
+                if (!isNaN(lat) && !isNaN(lng) && lat !== 0 && lng !== 0) {
+                  return { lat, lng };
+                }
+              }
+            }
+
+            // 2. Fallback: Coordenadas EN VIVO del nodo global de usuarios (puede estar congelado durante un viaje activo)
+            if (liveDriverLocation) {
+              return liveDriverLocation;
             }
             
             // 3. Fallback a campos legacy

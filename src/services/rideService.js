@@ -315,8 +315,8 @@ export function listenToRideStatus(nodeName, rideId, param3, param4) {
       foto_conductor: dataObj.foto_conductor || dataObj.conductor_foto || '',
       telefono_conductor: dataObj.telefono_conductor || dataObj.conductor_telefono || '',
       placa_vehiculo: dataObj.placa_vehiculo || dataObj.modelo_vehiculo || 'Auto',
-      conductor_lat: Number(dataObj.conductor_lat || dataObj.latitudConductor || dataObj.latitude || 0),
-      conductor_lng: Number(dataObj.conductor_lng || dataObj.longitudConductor || dataObj.longitude || 0)
+      conductor_lat: Number(dataObj.conductor_lat || dataObj.latitudConductor || 0),
+      conductor_lng: Number(dataObj.conductor_lng || dataObj.longitudConductor || 0)
     };
 
     lastKnownRide = fullObject;
