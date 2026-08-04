@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Radar, Phone, Star, X, CheckCircle, MessageSquare, Car, MapPin, Navigation, Clock } from 'lucide-react';
 import ChatModal from './ChatModal';
 
-export default function ActiveRideModal({ rideData, user, onCancelRide }) {
+export default function ActiveRideModal({ rideData, user, pricingConfig, onCancelRide }) {
   const [rating, setRating] = useState(5);
   const [isChatOpen, setIsChatOpen] = useState(false);
 
@@ -21,9 +21,9 @@ export default function ActiveRideModal({ rideData, user, onCancelRide }) {
   
   const precioUsd = rideData.precio || rideData.precio_usd || '0.00';
   const precioUsdNum = Number(precioUsd) || 0;
-  const tasaBcvNum = Number(rideData.tasa_bcv) || 50;
+  const tasaBcvNum = (pricingConfig && pricingConfig.tasaBcv) ? Number(pricingConfig.tasaBcv) : (Number(rideData.tasa_bcv) || 50);
   
-  // Forzar cálculo exacto siempre (ignorar el valor de Firebase que puede venir erróneo desde Flutter)
+  // Forzar cálculo exacto siempre usando la tasa BCV actual (header) o el fallback
   const precioBs = (precioUsdNum * tasaBcvNum).toFixed(2);
 
   // Configuración de estado idéntica a Flutter MicroservicioOverlaySuperior

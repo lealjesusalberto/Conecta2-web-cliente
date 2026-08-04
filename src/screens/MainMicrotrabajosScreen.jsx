@@ -404,6 +404,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
       <ActiveRideModal
         rideData={activeRide}
         user={user}
+        pricingConfig={pricingConfig}
         onCancelRide={handleCancelRide}
       />
 
