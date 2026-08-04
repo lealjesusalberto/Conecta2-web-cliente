@@ -206,7 +206,7 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
 
   // Aplicar filtro de distancia (5km) y límite (60 marcadores)
   const filteredAvailableDrivers = React.useMemo(() => {
-    if (!origen) return []; // Si no hay ubicación del cliente, no mostrar conductores (igual que Flutter)
+    if (!origen) return availableDrivers.slice(0, 60); // Si no hay origen, mostrar los primeros 60 disponibles sin filtrar distancia
 
     let filtered = availableDrivers.filter(driver => {
       const distKm = calculateHaversineDistance(origen.lat, origen.lng, driver.lat, driver.lng);
@@ -333,26 +333,46 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
           origen={origen}
           destino={destino}
           conductorLocation={(() => {
-            if (!activeRide) return null;
+            if (!activeRide) {
+              console.log('conductorLocation: activeRide is null');
+              return null;
+            }
             // 1. Prioridad: Coordenadas que la app de conductor inyecta directamente en el microservicio activo
             const activeLat = Number(activeRide.conductorLatitude || activeRide.ubicacionConductor_lat || 0);
             const activeLng = Number(activeRide.conductorLongitude || activeRide.ubicacionConductor_lng || 0);
-            if (activeLat !== 0 && activeLng !== 0) return { lat: activeLat, lng: activeLng };
+            if (activeLat !== 0 && activeLng !== 0) {
+              console.log('conductorLocation: using Priority 1 (activeRide)', activeLat, activeLng);
+              return { lat: activeLat, lng: activeLng };
+            }
 
             // 2. Coordenadas de los listeners adicionales de la web (usuarios_activos_microservicios o users)
-            if (liveDriverLocation) return liveDriverLocation;
+            if (liveDriverLocation) {
+              console.log('conductorLocation: using Priority 2 (liveDriverLocation)', liveDriverLocation);
+              return liveDriverLocation;
+            }
             
             // 3. Fallback a campos legacy
             const lat = Number(activeRide.conductor_lat || activeRide.latitudConductor || activeRide.conductorLat || 0);
             const lng = Number(activeRide.conductor_lng || activeRide.longitudConductor || activeRide.conductorLng || 0);
-            if (lat !== 0 && lng !== 0) return { lat, lng };
+            if (lat !== 0 && lng !== 0) {
+              console.log('conductorLocation: using Priority 3 (legacy fields)', lat, lng);
+              return { lat, lng };
+            }
             
             // 4. Último recurso: listado general de disponibles
             const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
             if (cid && availableDrivers.length > 0) {
               const d = availableDrivers.find(driver => driver.id === cid);
-              if (d) return { lat: d.lat, lng: d.lng };
+              if (d) {
+                console.log('conductorLocation: using Priority 4 (availableDrivers)', d.lat, d.lng);
+                return { lat: d.lat, lng: d.lng };
+              }
             }
+            console.log('conductorLocation: all fallbacks failed, returning null', {
+              cid,
+              availableDriversCount: availableDrivers.length,
+              activeRide
+            });
             return null;
           })()}
           availableDrivers={activeRide ? [] : filteredAvailableDrivers}

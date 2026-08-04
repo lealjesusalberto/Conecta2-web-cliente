@@ -218,7 +218,7 @@ export default function MapView({
         ))}
 
         {/* Real Street Polyline with Orange Conecta2 Brand Glow */}
-        {routeCoordinates.length > 0 && !conductorLocation && (
+        {routeCoordinates.length > 0 && (
           <>
             <Polyline
               positions={routeCoordinates}
