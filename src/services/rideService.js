@@ -231,6 +231,8 @@ export async function requestRide({
     origen_lng: lngOrigen,
     destino_lat: latDestino,
     destino_lng: lngDestino,
+    destinoLatitude: latDestino,
+    destinoLongitude: lngDestino,
 
     precio: precioUsdFormatted,
     precio_usd: precioUsdFormatted,
