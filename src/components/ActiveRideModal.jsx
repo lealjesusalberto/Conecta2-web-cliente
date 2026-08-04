@@ -22,8 +22,9 @@ export default function ActiveRideModal({ rideData, user, onCancelRide }) {
   const precioUsd = rideData.precio || rideData.precio_usd || '0.00';
   const precioUsdNum = Number(precioUsd) || 0;
   const tasaBcvNum = Number(rideData.tasa_bcv) || 50;
-  const fallbackBs = (precioUsdNum * tasaBcvNum).toFixed(2);
-  const precioBs = rideData.precio_total || rideData.precio_bs || fallbackBs;
+  
+  // Forzar cálculo exacto siempre (ignorar el valor de Firebase que puede venir erróneo desde Flutter)
+  const precioBs = (precioUsdNum * tasaBcvNum).toFixed(2);
 
   // Configuración de estado idéntica a Flutter MicroservicioOverlaySuperior
   const getStatusConfig = () => {
