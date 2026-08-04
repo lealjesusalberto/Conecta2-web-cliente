@@ -478,6 +478,11 @@ export async function checkActiveRideOnMount(userId) {
 
     if (!rideData) return null;
 
+    const rawEstado = (rideData.estado_microservicio || rideData.estado || '').toString().toLowerCase();
+    if (rawEstado === 'completado' || rawEstado === 'finalizado') {
+      return null;
+    }
+
     if (rideData.transporte && rideData.transporte.toLowerCase().includes('moto')) {
       tipo = 'moto';
     } else if (ridePath && ridePath.includes('/moto/')) {
