@@ -277,7 +277,19 @@ export default function MainMicrotrabajosScreen({ user, onOpenAuth, onOpenReward
         <MapView
           origen={origen}
           destino={destino}
-          conductorLocation={activeRide?.conductor_lat && activeRide?.conductor_lng ? { lat: activeRide.conductor_lat, lng: activeRide.conductor_lng } : null}
+          conductorLocation={(() => {
+            if (!activeRide) return null;
+            const lat = Number(activeRide.conductor_lat || activeRide.latitudConductor || activeRide.conductorLat || 0);
+            const lng = Number(activeRide.conductor_lng || activeRide.longitudConductor || activeRide.conductorLng || 0);
+            if (lat !== 0 && lng !== 0) return { lat, lng };
+            
+            const cid = activeRide.conductor_id || activeRide.idConductor || activeRide.id_conductor || activeRide.conductorId || activeRide.conductor;
+            if (cid && availableDrivers.length > 0) {
+              const d = availableDrivers.find(driver => driver.id === cid);
+              if (d) return { lat: d.lat, lng: d.lng };
+            }
+            return null;
+          })()}
           availableDrivers={activeRide ? [] : filteredAvailableDrivers}
           conductorType={selectedVehicleType}
           activeSelectionMode={activeSelectionMode}
